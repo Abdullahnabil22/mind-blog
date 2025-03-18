@@ -58,13 +58,32 @@ export function AppSidebar() {
             Mind <span className="text-green-500">Blog</span>
           </p>
         </header>
-        <SidebarInput placeholder="Search..." />
       </SidebarHeader>
       <SidebarContent
         className={`${
           isDark ? "bg-[#000e07] text-amber-100" : ""
         } flex-grow overflow-y-auto`}
       >
+        {/* Workspace/Files Section */}
+        <SidebarGroup>
+          <SidebarGroupLabel
+            className={`flex items-center justify-between ${
+              isDark ? "text-amber-100" : "text-gray-700"
+            }`}
+          >
+            <span>Workspace</span>
+            <div className="flex space-x-1">
+              <FoldersHeader />
+              <NotesHeader />
+            </div>
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <div className="px-2 py-1">
+              <Folders />
+              <Notes parentFolderId={null} />
+            </div>
+          </SidebarGroupContent>
+        </SidebarGroup>
         <SidebarGroup>
           <SidebarGroupLabel className={isDark ? "text-amber-100" : ""}>
             Application
@@ -100,27 +119,6 @@ export function AppSidebar() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* Workspace/Files Section */}
-        <SidebarGroup>
-          <SidebarGroupLabel
-            className={`flex items-center justify-between ${
-              isDark ? "text-amber-100" : "text-gray-700"
-            }`}
-          >
-            <span>Workspace</span>
-            <div className="flex space-x-1">
-              <FoldersHeader />
-              <NotesHeader />
-            </div>
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <div className="px-2 py-1">
-              <Folders />
-              <Notes parentFolderId={null} />
-            </div>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
