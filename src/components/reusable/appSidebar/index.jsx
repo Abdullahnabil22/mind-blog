@@ -10,8 +10,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarHeader,
-  SidebarInput,
   SidebarFooter,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { FaBrain, FaMoon, FaSun } from "react-icons/fa6";
 import { useAuth } from "../../../stores/useAuthStore";
@@ -40,28 +40,45 @@ const items = [
   },
 ];
 
-export function AppSidebar() {
+export function AppSidebar({ ...props }) {
+  const { state } = useSidebar();
   const { theme, toggleTheme } = useTheme();
-  const { profile, user } = useAuth();
+  const { profile } = useAuth();
   const isDark = theme !== "light";
 
   return (
-    <Sidebar className="flex flex-col h-full">
-      <SidebarHeader className={isDark ? "bg-[#000e07] text-amber-100" : ""}>
-        <header className="flex justify-center items-center mb-6">
-          <FaBrain size={20} className="text-green-500 mr-3" />
-          <p
-            className={`text-lg md:text-2xl lg:text-2xl font-bold ${
-              isDark ? "text-amber-100" : "text-black"
-            }`}
-          >
-            Mind <span className="text-green-500">Blog</span>
-          </p>
-        </header>
+    <Sidebar
+      className="flex flex-col h-full"
+      variant="inset"
+      collapsible="icon"
+      {...props}
+    >
+      <SidebarHeader
+        className={isDark ? "bg-[#000e07] text-amber-100" : "bg-[#f5f4f4]"}
+      >
+        {state === "expanded" ? (
+          <Link to="/" className="flex justify-center items-center mb-6">
+            <FaBrain size={20} className="text-green-500 mr-3" />
+            <p
+              className={`text-lg md:text-2xl lg:text-2xl font-bold ${
+                isDark ? "text-amber-100" : "text-black"
+              }`}
+            >
+              Mind <span className="text-green-500">Blog</span>
+            </p>
+          </Link>
+        ) : (
+          <Link to="/">
+            <FaBrain
+              size={20}
+              className={` ${isDark ? "text-amber-100" : "text-green-500"}`}
+            />
+          </Link>
+        )}
       </SidebarHeader>
       <SidebarContent
         className={`${
-          isDark ? "bg-[#000e07] text-amber-100" : ""
+          isDark ? "bg-[#000e07] text-amber-100" : "bg-[#f5f4f4]"
         } flex-grow overflow-y-auto`}
       >
         {/* Workspace/Files Section */}
@@ -84,79 +101,76 @@ export function AppSidebar() {
             </div>
           </SidebarGroupContent>
         </SidebarGroup>
-        <SidebarGroup>
-          <SidebarGroupLabel className={isDark ? "text-amber-100" : ""}>
-            Application
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    className={`mt-2 ${
-                      isDark ? "hover:bg-amber-100 text-amber-100" : ""
-                    }`}
-                  >
-                    <Link to={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  className={`mt-2 cursor-pointer ${
-                    isDark ? "hover:bg-amber-100 text-amber-100" : ""
-                  }`}
-                >
-                  <button onClick={toggleTheme}>
-                    {isDark ? <FaSun /> : <FaMoon />}
-                    <span>{isDark ? "Light Mode" : "Dark Mode"}</span>
-                  </button>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className={isDark ? "bg-[#000e07] text-amber-100" : ""}>
-        <div
-          className={`flex items-center justify-between w-full p-2 rounded-md ${
-            isDark ? "hover:bg-gray-800" : "hover:bg-gray-100"
-          } cursor-pointer`}
-        >
-          <div className="flex items-center gap-3">
-            {profile?.avatar_url ? (
-              <img
-                className="w-8 h-8 rounded-full"
-                src={profile?.avatar_url}
-                alt="avatar"
-              />
-            ) : (
-              <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white font-medium text-sm">
-                {profile?.display_name?.charAt(0).toUpperCase() || "S"}
-              </div>
-            )}
-            <div className="flex flex-col">
-              <p className="font-medium text-sm">
-                {profile?.display_name || "shadcn"}
-              </p>
-              <p
-                className={`text-xs ${
-                  isDark ? "text-gray-400" : "text-gray-500"
+      <SidebarFooter
+        className={isDark ? "bg-[#000e07] text-amber-100" : "bg-[#f5f4f4]"}
+      >
+        <SidebarMenu>
+          {items.map((item) => (
+            <SidebarMenuItem key={item.title}>
+              <SidebarMenuButton
+                asChild
+                className={`mt-2 ${
+                  isDark
+                    ? "hover:bg-amber-100 text-amber-100"
+                    : "hover:bg-gray-300"
                 }`}
               >
-                {user?.email || "m@example.com"}
-              </p>
+                <Link to={item.url}>
+                  <item.icon />
+                  <span>{item.title}</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
+
+        <SidebarMenuButton
+          asChild
+          className={`cursor-pointer ${
+            isDark ? "hover:bg-amber-100 text-amber-100" : "hover:bg-gray-300"
+          }`}
+        >
+          <button onClick={toggleTheme}>
+            {isDark ? <FaSun /> : <FaMoon />}
+            <span>{isDark ? "Light Mode" : "Dark Mode"}</span>
+          </button>
+        </SidebarMenuButton>
+
+        <SidebarMenuButton
+          asChild
+          className={`mt-2 cursor-pointer p-5 ${
+            isDark ? "hover:bg-amber-100 text-amber-100" : "hover:bg-gray-300"
+          }`}
+        >
+          {state === "expanded" ? (
+            <div className="flex items-center align-baseline gap-4">
+              <div className="flex items-center gap-2">
+                {profile?.avatar_url ? (
+                  <img
+                    className="w-8 h-8 rounded-full"
+                    src={profile?.avatar_url}
+                    alt="avatar"
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white font-medium text-sm">
+                    {profile?.display_name?.charAt(0).toUpperCase() || "A"}
+                  </div>
+                )}
+                <div className="flex ">
+                  <p className="font-medium text-sm">
+                    {profile?.display_name || "User"}
+                  </p>
+                </div>
+              </div>
+              <div>
+                <SignOut iconVersion={true} />
+              </div>
             </div>
-          </div>
-          <div>
+          ) : (
             <SignOut iconVersion={true} />
-          </div>
-        </div>
+          )}
+        </SidebarMenuButton>
       </SidebarFooter>
     </Sidebar>
   );

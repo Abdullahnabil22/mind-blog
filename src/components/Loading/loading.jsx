@@ -9,8 +9,10 @@ import {
   FiLink,
 } from "react-icons/fi";
 import { useState, useEffect, memo } from "react";
+import { useSettingsStore } from "../../stores";
 
 const Loading = memo(function () {
+  const { theme } = useSettingsStore();
   const [activeIcon, setActiveIcon] = useState(0);
   const icons = [
     { icon: FiBook, label: "Knowledge Base" },
@@ -30,7 +32,11 @@ const Loading = memo(function () {
   }, [icons.length]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div
+      className={`flex flex-col items-center justify-center min-h-screen ${
+        theme === "light" ? "bg-gray-50" : "bg-[#00170C]"
+      }`}
+    >
       <div className="text-center">
         <motion.div
           className="flex justify-center mb-8"
@@ -56,7 +62,9 @@ const Loading = memo(function () {
                   }}
                 >
                   <Icon
-                    className="text-green-600 dark:text-green-400"
+                    className={`${
+                      theme === "light" ? "text-green-500" : "text-amber-100"
+                    }`}
                     size={64}
                   />
                 </motion.div>
@@ -66,7 +74,9 @@ const Loading = memo(function () {
         </motion.div>
 
         <motion.h2
-          className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2"
+          className={`text-xl font-semibold mb-2 ${
+            theme === "light" ? "text-gray-800" : "text-amber-100"
+          }`}
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.5 }}
@@ -75,7 +85,9 @@ const Loading = memo(function () {
         </motion.h2>
 
         <motion.p
-          className="text-gray-600 dark:text-gray-400 max-w-md mx-auto"
+          className={`max-w-md mx-auto ${
+            theme === "light" ? "text-gray-600" : "text-amber-50"
+          }`}
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.5, duration: 0.5 }}
@@ -92,7 +104,9 @@ const Loading = memo(function () {
           {[0, 1, 2].map((dot) => (
             <motion.div
               key={dot}
-              className="w-3 h-3 rounded-full bg-green-600 dark:bg-green-400"
+              className={`w-3 h-3 rounded-full ${
+                theme === "light" ? "bg-green-500" : "bg-amber-100"
+              }`}
               animate={{
                 scale: [1, 1.5, 1],
                 opacity: [0.6, 1, 0.6],

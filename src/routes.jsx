@@ -46,6 +46,11 @@ const dashboard = lazy(() =>
     default: module.default || module.Dashboard,
   }))
 );
+const textEditor = lazy(() =>
+  import("./components/Dashboard/textEditor").then((module) => ({
+    default: module.default || module.TextEditor,
+  }))
+);
 export const routes = [
   {
     path: "/",
@@ -82,7 +87,7 @@ export const routes = [
     ],
   },
   {
-    path: "/dashboard",
+    path: "/workspace",
     element: <LazyComponent component={dashboardLayout} />,
     children: [
       {
@@ -90,6 +95,14 @@ export const routes = [
         element: (
           <ProtectedRoute>
             <LazyComponent component={dashboard} />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/workspace/:id",
+        element: (
+          <ProtectedRoute>
+            <LazyComponent component={textEditor} />
           </ProtectedRoute>
         ),
       },

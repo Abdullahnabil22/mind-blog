@@ -41,7 +41,8 @@ export function Hero() {
           </p>
 
           <section className="flex flex-col sm:flex-row justify-center gap-4 mb-16">
-            <motion.button
+            <motion.a
+              href="/workspace"
               className={`px-8 py-4 cursor-pointer text-lg font-medium rounded-md flex items-center justify-center gap-2 transition-all ${
                 theme === "light"
                   ? "bg-green-500 hover:bg-green-600 text-white"
@@ -52,7 +53,7 @@ export function Hero() {
             >
               <FaRocket className="text-xl" />
               Get Started
-            </motion.button>
+            </motion.a>
 
             <motion.button
               className={`px-8 py-4 text-lg cursor-pointer font-medium rounded-md border-2 flex items-center justify-center gap-2 transition-all ${

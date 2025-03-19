@@ -57,7 +57,7 @@ export const NoteItem = ({ note, level = 0 }) => {
         // You can add navigation here later
       }}
     >
-      <div className="w-4 mr-1" /> {/* Spacing for alignment */}
+      <div className="w-4 mr-1" />
       <FileText
         className={`w-4 h-4 mr-2 ${
           isDark ? "text-amber-100" : "text-gray-700"
@@ -120,7 +120,6 @@ export const NoteItem = ({ note, level = 0 }) => {
           </div>
         )}
       </div>
-      {/* Using the reusable rename dialog */}
       <RenameDialog
         isOpen={isRenameDialogOpen}
         onOpenChange={setIsRenameDialogOpen}
@@ -131,7 +130,6 @@ export const NoteItem = ({ note, level = 0 }) => {
         onChange={(e) => setNoteTitle(e.target.value)}
         onSave={handleRenameNote}
       />
-      {/* Using the reusable confirmation dialog */}
       <ConfirmationDialog
         isOpen={isDeleteConfirmOpen}
         onOpenChange={setIsDeleteConfirmOpen}

@@ -5,12 +5,12 @@ import { CreateNoteDialog } from "../Notes";
 import { CreateFolderDialog } from "./folderDialog";
 import { FolderItem } from "./folderItem";
 import { FoldersHeader } from "./folderHeader";
-
+import { useSidebar } from "@/components/ui/sidebar";
 function Folders() {
   const [isCreateFolderOpen, setIsCreateFolderOpen] = useState(false);
   const [isCreateNoteOpen, setIsCreateNoteOpen] = useState(false);
   const [selectedFolderId, setSelectedFolderId] = useState(null);
-
+  const { state } = useSidebar();
   // Get folders and notes data
   const { folders, isLoading: foldersLoading } = useFolders();
   const { notes, isLoading: notesLoading } = useNotes();
@@ -55,7 +55,7 @@ function Folders() {
             ))}
 
           {/* Show message if no content */}
-          {folderTree.length === 0 && (
+          {folderTree.length === 0 && state === "expanded" && (
             <div className="text-center py-4 text-sm text-gray-500">
               No folders yet. Create your first folder!
             </div>
@@ -70,12 +70,12 @@ function Folders() {
         parentId={selectedFolderId}
       />
 
-       {/* Create Note Dialog */}
+      {/* Create Note Dialog */}
       <CreateNoteDialog
         isOpen={isCreateNoteOpen}
         onOpenChange={setIsCreateNoteOpen}
         parentFolderId={selectedFolderId}
-      /> 
+      />
     </>
   );
 }

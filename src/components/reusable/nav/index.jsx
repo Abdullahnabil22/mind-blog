@@ -77,9 +77,9 @@ export function NavBar() {
                     isActive ? " text-green-500 font-bold" : "font-semibold"
                   } cursor-pointer me-2 py-2 px-4 rounded-md text-sm `
                 }
-                to="/dashboard"
+                to="/workspace"
               >
-                Dashboard
+                Workspace
               </NavLink>
               <NavLink
                 className={({ isActive }) =>

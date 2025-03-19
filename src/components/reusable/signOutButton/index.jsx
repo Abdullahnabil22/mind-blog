@@ -31,12 +31,12 @@ export function SignOut({ iconVersion = false }) {
                 className={`cursor-pointer rounded-full p-1.5 transition-all transform  focus:outline-none focus:ring-2 focus:ring-opacity-50 ${
                   theme === "light"
                     ? "bg-gray-100 hover:bg-gray-200 text-gray-700 focus:ring-gray-400"
-                    : "bg-gray-800 hover:bg-gray-700 text-gray-200 focus:ring-gray-600"
+                    : "bg-amber-100 hover:bg-[#000E07] text-[#000E07] hover:text-amber-100 focus:ring-gray-600"
                 }`}
                 onClick={handleSignOut}
                 aria-label="Sign out"
               >
-                <BiLogOut size={20} />
+                <BiLogOut size={18} />
               </button>
             </TooltipTrigger>
             <TooltipContent>
