@@ -125,6 +125,7 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { defaultQueryConfig, defaultMutationOptions } from '../utils/queryConfig';
 
 /**
  * Base Zustand store for tags UI state
@@ -156,9 +157,9 @@ export function useTags() {
     data: tags = [], 
     isLoading: queryLoading,
     error: queryError 
-  } = useQuery(
-    ['tags'],
-    async () => {
+  } = useQuery({
+    queryKey: ['tags'],
+    queryFn: async () => {
       const { data, error } = await supabase
         .from('tags')
         .select('*')
@@ -167,14 +168,12 @@ export function useTags() {
       if (error) throw error;
       return data;
     },
-    {
-      staleTime: 5 * 60 * 1000, // 5 minutes
-    }
-  );
+    ...defaultQueryConfig()
+  });
   
   // Create tag mutation
-  const createTagMutation = useMutation(
-    async ({ name, color = '#3B82F6' }) => {
+  const createTagMutation = useMutation({
+    mutationFn: async ({ name, color = '#3B82F6' }) => {
       const { data, error } = await supabase
         .from('tags')
         .insert([{
@@ -186,16 +185,12 @@ export function useTags() {
       if (error) throw error;
       return data[0];
     },
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(['tags']);
-      }
-    }
-  );
+    ...defaultMutationOptions(queryClient, ['tags'])
+  });
   
   // Update tag mutation
-  const updateTagMutation = useMutation(
-    async ({ id, name, color }) => {
+  const updateTagMutation = useMutation({
+    mutationFn: async ({ id, name, color }) => {
       const { error } = await supabase
         .from('tags')
         .update({
@@ -207,16 +202,12 @@ export function useTags() {
       if (error) throw error;
       return id;
     },
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(['tags']);
-      }
-    }
-  );
+    ...defaultMutationOptions(queryClient, ['tags'])
+  });
   
   // Delete tag mutation
-  const deleteTagMutation = useMutation(
-    async (id) => {
+  const deleteTagMutation = useMutation({
+    mutationFn: async (id) => {
       const { error } = await supabase
         .from('tags')
         .delete()
@@ -225,14 +216,8 @@ export function useTags() {
       if (error) throw error;
       return id;
     },
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(['tags']);
-        // Also invalidate notes since they might have this tag
-        queryClient.invalidateQueries(['notes']);
-      }
-    }
-  );
+    ...defaultMutationOptions(queryClient, [['tags'], ['notes']])
+  });
   
   return {
     tags,

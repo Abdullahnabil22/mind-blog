@@ -54,6 +54,7 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { defaultQueryConfig, defaultMutationOptions } from '../utils/queryConfig';
 
 /**
  * Base Zustand store for knowledge graph UI state
@@ -85,9 +86,9 @@ export function useKnowledgeGraph() {
     data: graph = { nodes: [], edges: [] }, 
     isLoading: queryLoading,
     error: queryError 
-  } = useQuery(
-    ['knowledgeGraph'],
-    async () => {
+  } = useQuery({
+    queryKey: ['knowledgeGraph'],
+    queryFn: async () => {
       // Get all notes
       const { data: notes, error: notesError } = await supabase
         .from('notes')
@@ -116,14 +117,12 @@ export function useKnowledgeGraph() {
         }))
       };
     },
-    {
-      staleTime: 5 * 60 * 1000, // 5 minutes
-    }
-  );
+    ...defaultQueryConfig()
+  });
   
   // Create link mutation
-  const createLinkMutation = useMutation(
-    async ({ sourceNoteId, targetNoteId, linkType = 'relates to' }) => {
+  const createLinkMutation = useMutation({
+    mutationFn: async ({ sourceNoteId, targetNoteId, linkType = 'relates to' }) => {
       const { data, error } = await supabase
         .from('note_links')
         .insert([{
@@ -136,16 +135,12 @@ export function useKnowledgeGraph() {
       if (error) throw error;
       return data[0];
     },
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(['knowledgeGraph']);
-      }
-    }
-  );
+    ...defaultMutationOptions(queryClient, ['knowledgeGraph'])
+  });
   
   // Delete link mutation
-  const deleteLinkMutation = useMutation(
-    async (id) => {
+  const deleteLinkMutation = useMutation({
+    mutationFn: async (id) => {
       const { error } = await supabase
         .from('note_links')
         .delete()
@@ -154,12 +149,8 @@ export function useKnowledgeGraph() {
       if (error) throw error;
       return id;
     },
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(['knowledgeGraph']);
-      }
-    }
-  );
+    ...defaultMutationOptions(queryClient, ['knowledgeGraph'])
+  });
   
   return {
     graph,

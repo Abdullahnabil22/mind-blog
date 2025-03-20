@@ -93,6 +93,7 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
 import { useQuery } from '@tanstack/react-query';
+import { sessionQueryConfig } from '../utils/queryConfig';
 
 /**
  * Base Zustand store for search state
@@ -175,9 +176,9 @@ export function useSearch() {
     isLoading,
     error,
     refetch
-  } = useQuery(
-    ['search', searchQuery, filters],
-    async () => {
+  } = useQuery({
+    queryKey: ['search', searchQuery, filters],
+    queryFn: async () => {
       if (!searchQuery && !hasActiveFilters()) {
         return [];
       }
@@ -228,11 +229,9 @@ export function useSearch() {
         tags: note.tags.map(t => t.tags)
       }));
     },
-    {
-      enabled: searchQuery !== '' || hasActiveFilters(),
-      staleTime: 1 * 60 * 1000, // 1 minute
-    }
-  );
+    enabled: searchQuery !== '' || hasActiveFilters(),
+    ...sessionQueryConfig()
+  });
   
   const search = () => {
     refetch();

@@ -97,6 +97,7 @@ import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../stores/useAuthStore';
+import { defaultQueryConfig, sessionQueryConfig, defaultMutationOptions } from '../utils/queryConfig';
 
 /**
  * Base Zustand store for notes UI state
@@ -192,7 +193,7 @@ export function useNotes(folderId = null, tagId = null) {
       
       return data;
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    ...defaultQueryConfig()
   });
   
   // Fetch single note with React Query
@@ -237,7 +238,7 @@ export function useNotes(folderId = null, tagId = null) {
       };
     },
     enabled: !!currentNoteId,
-    staleTime: 1 * 60 * 1000, // 1 minute
+    ...sessionQueryConfig()
   });
   
   // Update createNote mutation
@@ -257,9 +258,7 @@ export function useNotes(folderId = null, tagId = null) {
       if (error) throw error;
       return data[0];
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notes'] });
-    }
+    ...defaultMutationOptions(queryClient, ['notes'])
   });
   
   // Update updateNote mutation
@@ -279,9 +278,10 @@ export function useNotes(folderId = null, tagId = null) {
       if (error) throw error;
       return data[0];
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notes'] });
-    }
+    ...defaultMutationOptions(queryClient, [
+      ['notes'], 
+      ['note', currentNoteId]
+    ])
   });
   
   // Update deleteNote mutation
@@ -301,9 +301,7 @@ export function useNotes(folderId = null, tagId = null) {
       
       return id;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notes'] });
-    }
+    ...defaultMutationOptions(queryClient, ['notes'])
   });
   
   // Update addTag mutation
@@ -320,9 +318,10 @@ export function useNotes(folderId = null, tagId = null) {
       if (error) throw error;
       return data[0];
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notes'] });
-    }
+    ...defaultMutationOptions(queryClient, [
+      ['notes'],
+      ['note', currentNoteId]
+    ])
   });
   
   // Update removeTag mutation
@@ -336,9 +335,10 @@ export function useNotes(folderId = null, tagId = null) {
       if (error) throw error;
       return { noteId, tagId };
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notes'] });
-    }
+    ...defaultMutationOptions(queryClient, [
+      ['notes'],
+      ['note', currentNoteId]
+    ])
   });
   
   return {

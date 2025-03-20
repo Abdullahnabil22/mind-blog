@@ -11,7 +11,7 @@ import { Link, NavLink } from "react-router";
 
 export function NavBar() {
   const { theme } = useSettingsStore();
-  const { profile, isAuthenticated } = useAuth();
+  const { profile, isAuthenticated, user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleMenu = () => setIsOpen(!isOpen);
@@ -187,7 +187,7 @@ export function NavBar() {
                         {profile?.display_name}
                       </p>
                       <p className="text-xs text-green-500 font-medium">
-                        Logged in
+                        {user?.email}
                       </p>
                     </div>
                     <motion.button
@@ -233,6 +233,25 @@ export function NavBar() {
                     >
                       <div className="flex items-center">
                         <span className="text-base">Home</span>
+                      </div>
+                    </NavLink>
+                    <NavLink
+                      className={({ isActive }) =>
+                        `block w-full px-4 py-3 rounded-lg transition-all duration-200 mb-2 ${
+                          theme === "light"
+                            ? isActive
+                              ? "bg-green-100 text-green-700 font-bold"
+                              : "hover:bg-gray-100 text-gray-800"
+                            : isActive
+                            ? "bg-green-900 bg-opacity-30 text-green-400 font-bold"
+                            : "hover:bg-gray-800 text-amber-100"
+                        }`
+                      }
+                      to="/workspace"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      <div className="flex items-center">
+                        <span className="text-base">Workspace</span>
                       </div>
                     </NavLink>
 

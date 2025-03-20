@@ -48,6 +48,7 @@ import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../stores/useAuthStore';
+import { defaultQueryConfig, defaultMutationOptions } from '../utils/queryConfig';
 
 /**
  * Base Zustand store for folders UI state
@@ -205,7 +206,7 @@ export function useFolders() {
       if (error) throw error;
       return data;
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    ...defaultQueryConfig()
   });
   
   // This part is already updated - good
@@ -223,10 +224,7 @@ export function useFolders() {
       if (error) throw error;
       return data[0];
     },
-    onSuccess: () => {
-      // Invalidate and refetch
-      queryClient.invalidateQueries({ queryKey: ['folders'] });
-    }
+    ...defaultMutationOptions(queryClient, ['folders'])
   });
   
   // UPDATE this mutation to use object syntax
@@ -243,9 +241,7 @@ export function useFolders() {
       if (error) throw error;
       return id;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['folders'] });
-    }
+    ...defaultMutationOptions(queryClient, ['folders'])
   });
   
   // UPDATE this mutation to use object syntax
@@ -259,9 +255,7 @@ export function useFolders() {
       if (error) throw error;
       return id;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['folders'] });
-    }
+    ...defaultMutationOptions(queryClient, ['folders'])
   });
   
   return {

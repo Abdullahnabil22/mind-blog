@@ -66,6 +66,7 @@ import { create } from "zustand";
 import { supabase } from "../lib/supabase";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
+import { sessionQueryConfig } from "../utils/queryConfig";
 
 /**
  * Base Zustand store for authentication state
@@ -265,7 +266,6 @@ export function useAuth() {
 
         // If no profile exists (and it's not another error), create one
         if (error && error.code === "PGRST116") {
-
           // Get username from user metadata or email
           const username =
             user.user_metadata?.username || user.email?.split("@")[0];
@@ -295,8 +295,7 @@ export function useAuth() {
       }
     },
     enabled: !!user,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    retry: 3,
+    ...sessionQueryConfig()
   });
 
   // Initialize auth on component mount
@@ -306,12 +305,22 @@ export function useAuth() {
     // Set up listener for auth state changes to invalidate queries
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "SIGNED_IN") {
-        queryClient.invalidateQueries({ queryKey: ["profile"] });
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      // Only invalidate if the user ID actually changed
+      const currentUserId = user?.id;
+      const newUserId = session?.user?.id;
+      
+      if (event === "SIGNED_IN" && currentUserId !== newUserId) {
+        queryClient.invalidateQueries({ 
+          queryKey: ["profile", newUserId],
+          exact: true // Only invalidate exact query key match
+        });
       }
       if (event === "SIGNED_OUT") {
-        queryClient.removeQueries({ queryKey: ["profile"] });
+        queryClient.removeQueries({ 
+          queryKey: ["profile"],
+          exact: false // Remove all profile queries
+        });
       }
     });
 
@@ -321,7 +330,7 @@ export function useAuth() {
       }
       subscription?.unsubscribe();
     };
-  }, [queryClient, initialize]);
+  }, [queryClient, initialize, user?.id]); // Add user.id to dependencies
 
   return {
     user,
@@ -335,6 +344,9 @@ export function useAuth() {
     gitHub,
     isAuthenticated: isAuthenticated(),
     refreshProfile: () =>
-      queryClient.invalidateQueries({ queryKey: ["profile", user?.id] }),
+      queryClient.invalidateQueries({ 
+        queryKey: ["profile", user?.id],
+        exact: true // Only invalidate exact query key match
+      }),
   };
 }
