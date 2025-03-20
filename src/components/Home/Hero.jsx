@@ -12,9 +12,7 @@ export function Hero() {
 
   return (
     <section className="relative h-screen flex items-center justify-center overflow-hidden">
-      <ThemeAnimation />
-      <BackgroundAnimation />
-      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <div className="relative  max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

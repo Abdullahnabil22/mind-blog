@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 export function BackgroundAnimation() {
   const { theme } = useSettingsStore();
   return (
-    <div className="absolute inset-0 overflow-hidden z-1">
+    <div className="absolute inset-0 overflow-hidden -z-1">
       {[...Array(30)].map((_, i) => (
         <motion.div
           key={i}
