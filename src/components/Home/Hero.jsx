@@ -4,8 +4,7 @@ import { FaRocket, FaGithub, FaLinkedin } from "react-icons/fa";
 import { FaBrain } from "react-icons/fa6";
 import { useSettingsStore } from "../../stores";
 import { PiMouseScrollBold } from "react-icons/pi";
-import { ThemeAnimation } from "../reusable/themeAnimation";
-import { BackgroundAnimation } from "../reusable/backgroundAnimation";
+
 
 export function Hero() {
   const { theme } = useSettingsStore();

@@ -20,6 +20,7 @@ export function CreateDialog({
 }) {
   const { theme } = useTheme();
   const isDark = theme !== "light";
+  
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onOpenChange}>

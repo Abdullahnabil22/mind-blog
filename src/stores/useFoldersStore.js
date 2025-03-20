@@ -48,7 +48,7 @@ import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../stores/useAuthStore';
-import { defaultQueryConfig, defaultMutationOptions } from '../utils/queryConfig';
+import { defaultQueryConfig } from '../utils/queryConfig';
 
 /**
  * Base Zustand store for folders UI state
@@ -224,7 +224,14 @@ export function useFolders() {
       if (error) throw error;
       return data[0];
     },
-    ...defaultMutationOptions(queryClient, ['folders'])
+    onSuccess: (newFolder) => {
+      // Update cache directly
+      queryClient.setQueryData(['folders'], (oldData) => {
+        return oldData ? [...oldData, newFolder] : [newFolder];
+      });
+      // Still invalidate to ensure consistency
+      queryClient.invalidateQueries({ queryKey: ['folders'] });
+    }
   });
   
   // UPDATE this mutation to use object syntax
@@ -239,9 +246,18 @@ export function useFolders() {
         .eq('id', id);
       
       if (error) throw error;
-      return id;
+      return { id, name, parent_id: parentId };
     },
-    ...defaultMutationOptions(queryClient, ['folders'])
+    onSuccess: (updatedFolder) => {
+      // Update cache directly
+      queryClient.setQueryData(['folders'], (oldData) => {
+        return oldData ? oldData.map(folder => 
+          folder.id === updatedFolder.id ? { ...folder, ...updatedFolder } : folder
+        ) : oldData;
+      });
+      // Still invalidate to ensure consistency
+      queryClient.invalidateQueries({ queryKey: ['folders'] });
+    }
   });
   
   // UPDATE this mutation to use object syntax
@@ -255,7 +271,14 @@ export function useFolders() {
       if (error) throw error;
       return id;
     },
-    ...defaultMutationOptions(queryClient, ['folders'])
+    onSuccess: (deletedId) => {
+      // Update cache directly
+      queryClient.setQueryData(['folders'], (oldData) => {
+        return oldData ? oldData.filter(folder => folder.id !== deletedId) : oldData;
+      });
+      // Still invalidate to ensure consistency
+      queryClient.invalidateQueries({ queryKey: ['folders'] });
+    }
   });
   
   return {

@@ -97,7 +97,7 @@ import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../stores/useAuthStore';
-import { defaultQueryConfig, sessionQueryConfig, defaultMutationOptions } from '../utils/queryConfig';
+import { defaultQueryConfig, sessionQueryConfig } from '../utils/queryConfig';
 
 /**
  * Base Zustand store for notes UI state
@@ -258,7 +258,14 @@ export function useNotes(folderId = null, tagId = null) {
       if (error) throw error;
       return data[0];
     },
-    ...defaultMutationOptions(queryClient, ['notes'])
+    onSuccess: (newNote) => {
+      // Update cache directly
+      queryClient.setQueryData(['notes'], (oldData) => {
+        return oldData ? [newNote, ...oldData] : [newNote];
+      });
+      // Still invalidate to ensure consistency
+      queryClient.invalidateQueries({ queryKey: ['notes'] });
+    }
   });
   
   // Update updateNote mutation
@@ -278,10 +285,25 @@ export function useNotes(folderId = null, tagId = null) {
       if (error) throw error;
       return data[0];
     },
-    ...defaultMutationOptions(queryClient, [
-      ['notes'], 
-      ['note', currentNoteId]
-    ])
+    onSuccess: (updatedNote) => {
+      // Update notes list cache
+      queryClient.setQueryData(['notes'], (oldData) => {
+        return oldData ? oldData.map(note => 
+          note.id === updatedNote.id ? { ...note, ...updatedNote } : note
+        ) : oldData;
+      });
+
+      // Update current note cache if it's the one being edited
+      if (currentNoteId === updatedNote.id) {
+        queryClient.setQueryData(['note', currentNoteId], (oldData) => {
+          return oldData ? { ...oldData, ...updatedNote } : oldData;
+        });
+      }
+
+      // Still invalidate to ensure consistency
+      queryClient.invalidateQueries({ queryKey: ['notes'] });
+      queryClient.invalidateQueries({ queryKey: ['note', currentNoteId] });
+    }
   });
   
   // Update deleteNote mutation
@@ -301,7 +323,20 @@ export function useNotes(folderId = null, tagId = null) {
       
       return id;
     },
-    ...defaultMutationOptions(queryClient, ['notes'])
+    onSuccess: (deletedId) => {
+      // Update cache directly
+      queryClient.setQueryData(['notes'], (oldData) => {
+        return oldData ? oldData.filter(note => note.id !== deletedId) : oldData;
+      });
+      
+      // Invalidate notes query
+      queryClient.invalidateQueries({ queryKey: ['notes'] });
+      
+      // If the deleted note was the current note, remove it from cache
+      if (currentNoteId === deletedId) {
+        queryClient.removeQueries({ queryKey: ['note', deletedId] });
+      }
+    }
   });
   
   // Update addTag mutation
@@ -318,10 +353,11 @@ export function useNotes(folderId = null, tagId = null) {
       if (error) throw error;
       return data[0];
     },
-    ...defaultMutationOptions(queryClient, [
-      ['notes'],
-      ['note', currentNoteId]
-    ])
+    onSuccess: () => {
+      // Invalidate to refresh - harder to update cache manually for tags
+      queryClient.invalidateQueries({ queryKey: ['notes'] });
+      queryClient.invalidateQueries({ queryKey: ['note', currentNoteId] });
+    }
   });
   
   // Update removeTag mutation
@@ -335,10 +371,11 @@ export function useNotes(folderId = null, tagId = null) {
       if (error) throw error;
       return { noteId, tagId };
     },
-    ...defaultMutationOptions(queryClient, [
-      ['notes'],
-      ['note', currentNoteId]
-    ])
+    onSuccess: () => {
+      // Invalidate to refresh - harder to update cache manually for tags
+      queryClient.invalidateQueries({ queryKey: ['notes'] });
+      queryClient.invalidateQueries({ queryKey: ['note', currentNoteId] });
+    }
   });
   
   return {

@@ -107,7 +107,7 @@ export const FolderItem = ({
           <Button
             variant="ghost"
             size="icon"
-            className="w-6 h-6"
+            className="w-6 h-6 cursor-pointer"
             onClick={(e) => {
               e.stopPropagation();
               setSelectedFolderId(folder.id);
@@ -119,7 +119,7 @@ export const FolderItem = ({
           <Button
             variant="ghost"
             size="icon"
-            className="w-6 h-6"
+            className="w-6 h-6 cursor-pointer"
             onClick={(e) => {
               e.stopPropagation();
               setSelectedFolderId(folder.id);
@@ -132,7 +132,7 @@ export const FolderItem = ({
           <Button
             variant="ghost"
             size="icon"
-            className="w-6 h-6"
+            className="w-6 h-6 cursor-pointer"
             onClick={(e) => {
               e.stopPropagation();
               setShowOptions(!showOptions);
@@ -152,7 +152,7 @@ export const FolderItem = ({
               onClick={(e) => e.stopPropagation()}
             >
               <button
-                className={`flex items-center w-full px-3 py-2 text-sm ${
+                className={`flex items-center w-full px-3 py-2 text-sm cursor-pointer ${
                   isDark ? "hover:bg-gray-800" : "hover:bg-gray-100"
                 }`}
                 onClick={() => {
@@ -164,7 +164,7 @@ export const FolderItem = ({
                 <span>Rename</span>
               </button>
               <button
-                className={`flex items-center w-full px-3 py-2 text-sm text-red-500 ${
+                className={`flex items-center w-full px-3 py-2 text-sm text-red-500 cursor-pointer ${
                   isDark ? "hover:bg-gray-800" : "hover:bg-gray-100"
                 }`}
                 onClick={() => {
