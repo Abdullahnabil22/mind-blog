@@ -1,4 +1,4 @@
-import { Outlet } from "react-router";
+import { Outlet, useParams } from "react-router";
 import {
   SidebarProvider,
   SidebarTrigger,
@@ -6,10 +6,12 @@ import {
 } from "@/components/ui/sidebar";
 import { AppSidebar } from "../../reusable/appSidebar";
 import { useSettingsStore } from "../../../stores";
+import { NotePathBreadcrumb } from "./NoteBreadcrumb";
 
 export function DashLayout() {
   const { theme } = useSettingsStore();
   const isDark = theme !== "light";
+  const { id } = useParams();
 
   return (
     <div className="min-h-screen w-full overflow-hidden">
@@ -25,13 +27,16 @@ export function DashLayout() {
           }`}
         >
           <div className="p-4 h-full">
-            <SidebarTrigger
-              className={`cursor-pointer mb-4 ${
-                isDark
-                  ? "text-amber-100 hover:bg-amber-100 hover:text-[#00170C]"
-                  : "text-black"
-              }`}
-            />
+            <div className="flex items-center mb-4 gap-2">
+              <SidebarTrigger
+                className={`cursor-pointer ${
+                  isDark
+                    ? "text-amber-100 hover:bg-amber-100 hover:text-[#00170C]"
+                    : "text-black"
+                }`}
+              />
+              {id && <NotePathBreadcrumb />}
+            </div>
             <Outlet />
           </div>
         </SidebarInset>
