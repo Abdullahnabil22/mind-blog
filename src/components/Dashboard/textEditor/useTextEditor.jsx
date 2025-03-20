@@ -23,6 +23,7 @@ export function useTextEditor() {
   const editorInitTimeout = useRef(null);
   const autoSaveTimeout = useRef(null);
   const handleSaveContentRef = useRef(null);
+  const contentAlreadySet = useRef(false);
 
   // Get note data from the store
   const {
@@ -39,145 +40,6 @@ export function useTextEditor() {
 
   // Track auto-save status
   const [autoSaveStatus, setAutoSaveStatus] = useState("enabled");
-
-  // 1. Component initialization and cleanup - combine related effects
-  useEffect(() => {
-    // Clear state if no ID is present or if ID format doesn't match UUID pattern
-    // This handles folder clicks which don't have a note ID in the URL
-    if (!id) {
-      setIsEditorReady(true);
-      setHasChanges(false);
-      setAutoSaveStatus("enabled");
-      hasInitialized.current = false;
-      return;
-    }
-
-    // UUID pattern matching for note IDs (most database UUIDs follow this pattern)
-    const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    const isValidNoteId = uuidPattern.test(id);
-
-    // Only try to set current note if it looks like a valid note ID, not a folder ID
-    if (!hasInitialized.current && isValidNoteId) {
-      setCurrentNote(id);
-      hasInitialized.current = true;
-    }
-
-    // If it's not a valid note ID (likely a folder), reset the editor state
-    if (!isValidNoteId) {
-      setIsEditorReady(true);
-      setHasChanges(false);
-      setAutoSaveStatus("enabled");
-      // Clear any editor content to prevent showing previous note content
-      if (editor) {
-        editor.commands.setContent("");
-      }
-      setEditorContent("");
-    }
-
-    // Cleanup function
-    return () => {
-      hasInitialized.current = false;
-
-      // Clear all timeouts
-      if (editorInitTimeout.current) {
-        clearTimeout(editorInitTimeout.current);
-      }
-      if (autoSaveTimeout.current) {
-        clearTimeout(autoSaveTimeout.current);
-      }
-    };
-  }, [id, setCurrentNote]);
-
-  // 2. Combine the note fetching retry logic
-  useEffect(() => {
-    // Only attempt retries if id exists and looks like a valid UUID
-    const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    const isValidNoteId = id && uuidPattern.test(id);
-    
-    // Retry fetching if note is not found initially but ID is valid
-    let retryTimer;
-    if (isValidNoteId && !currentNote && !isLoading && retryCount < maxRetries) {
-      retryTimer = setTimeout(() => {
-        refreshCurrentNote && refreshCurrentNote();
-        setRetryCount((prev) => prev + 1);
-      }, 1000);
-    }
-
-    return () => {
-      if (retryTimer) clearTimeout(retryTimer);
-    };
-  }, [id, currentNote, isLoading, retryCount, refreshCurrentNote, maxRetries]);
-
-  // 3. Process note content immediately after currentNote changes
-  useEffect(() => {
-    if (currentNote) {
-      let noteContent = "";
-
-      if (currentNote.markdown) {
-        noteContent = currentNote.markdown;
-      } else if (currentNote.content) {
-        // Handle different types of content more intelligently
-        if (typeof currentNote.content === "object") {
-          // If it's an empty object, set empty string
-          if (Object.keys(currentNote.content).length === 0) {
-            noteContent = "";
-          } else {
-            // Try to parse it properly, but fallback to empty if it fails
-            try {
-              // This will handle JSON content from TipTap more elegantly
-              noteContent = currentNote.content.content
-                ? currentNote.content.content
-                : JSON.stringify(currentNote.content);
-            } catch (e) {
-              noteContent = "";
-              toast.error(e);
-            }
-          }
-        } else {
-          noteContent = currentNote.content;
-        }
-      }
-
-      // Remove literal "{}" if present
-      if (noteContent === "{}") {
-        noteContent = "";
-      }
-
-      setEditorContent(noteContent || "");
-      // Reset the changes flag when loading a new note
-      setHasChanges(false);
-    }
-  }, [currentNote]);
-
-  // Format the last saved time
-  const formatLastSaved = () => {
-    if (!lastSaved) return "Not saved yet";
-
-    const now = new Date();
-    const diff = now - lastSaved;
-
-    // Format based on how long ago it was saved
-    if (diff < 60000) {
-      return "Saved just now";
-    } else if (diff < 3600000) {
-      const minutes = Math.floor(diff / 60000);
-      return `Saved ${minutes} minute${minutes > 1 ? "s" : ""} ago`;
-    } else {
-      return `Saved at ${lastSaved.toLocaleTimeString()}`;
-    }
-  };
-
-  // Color presets with better colors that work in both light/dark modes
-  const colorPresets = [
-    { color: "#E03131", name: "Red" },
-    { color: "#2F9E44", name: "Green" },
-    { color: "#1971C2", name: "Blue" },
-    { color: "#F08C00", name: "Orange" },
-    { color: "#6741D9", name: "Purple" },
-    { color: "#0CA678", name: "Teal" },
-    { color: "#E64980", name: "Pink" },
-    { color: "#3BC9DB", name: "Cyan" },
-  ];
 
   // Define the editor first, with a simpler onUpdate that doesn't reference functions defined later
   const editor = useEditor({
@@ -214,20 +76,26 @@ export function useTextEditor() {
         spellcheck: "true",
       },
     },
-    // Instead of using onUpdate which causes the space issue, use onBlur
-    onBlur: ({ editor }) => {
-      if (!editor || !currentNote) return;
+    onReady: () => {
+      editorInitTimeout.current = setTimeout(() => {
+        setIsEditorReady(true);
+      }, 100);
+    },
+  });
 
-      // Only save when user stops editing (on blur)
+  // Add editor event handlers after initialization
+  useEffect(() => {
+    if (!editor) return;
+
+    // Handle blur events
+    editor.on('blur', () => {
+      if (!currentNote) return;
+
       const html = editor.getHTML();
-
-      // Mark changes
       setHasChanges(true);
       setEditorContent(html);
 
       try {
-        console.log("Saving content on blur...");
-        // Save to backend
         updateNote({
           id: currentNote.id,
           title: currentNote.title,
@@ -236,44 +104,37 @@ export function useTextEditor() {
           folder_id: currentNote.folder_id,
         });
 
-        // Update last saved time and status
         setLastSaved(new Date());
         setHasChanges(false);
         setAutoSaveStatus("saved");
 
-        // Reset status after a delay
         setTimeout(() => {
           setAutoSaveStatus("enabled");
         }, 3000);
       } catch (error) {
-        console.error("Save failed:", error);
         setAutoSaveStatus("failed");
-
-        // Reset status after a delay
         setTimeout(() => {
           setAutoSaveStatus("enabled");
         }, 3000);
       }
-    },
-    // Add change detection without saving
-    onUpdate: ({ editor }) => {
+    });
+
+    // Handle update events
+    editor.on('update', () => {
       setHasChanges(true);
       setAutoSaveStatus("pending");
 
-      // Auto-save after typing stops (debounced)
       if (autoSaveTimeout.current) {
         clearTimeout(autoSaveTimeout.current);
       }
 
-      // Set a timeout to auto-save after inactivity
       autoSaveTimeout.current = setTimeout(() => {
-        if (!editor || !currentNote) return;
+        if (!currentNote) return;
 
         const html = editor.getHTML();
         setEditorContent(html);
 
         try {
-          console.log("Auto-saving content after inactivity...");
           updateNote({
             id: currentNote.id,
             title: currentNote.title,
@@ -290,38 +151,167 @@ export function useTextEditor() {
             setAutoSaveStatus("enabled");
           }, 3000);
         } catch (error) {
-          console.error("Auto-save failed:", error);
           setAutoSaveStatus("failed");
-
           setTimeout(() => {
             setAutoSaveStatus("enabled");
           }, 3000);
         }
-      }, 2000); // Increased to 2 seconds for better performance
-    },
-    onReady: () => {
-      // Add a slight delay before marking editor as ready to ensure everything is initialized
-      editorInitTimeout.current = setTimeout(() => {
-        setIsEditorReady(true);
-      }, 100);
-    },
-  });
+      }, 2000);
+    });
 
-  // Save content functionality - defined after editor
+    return () => {
+      editor.off('blur');
+      editor.off('update');
+    };
+  }, [editor, currentNote, updateNote]);
+
+  // 1. Component initialization and cleanup - combine related effects
+  useEffect(() => {
+    // Clear state if no ID is present or if ID format doesn't match UUID pattern
+    if (!id) {
+      setIsEditorReady(true);
+      setHasChanges(false);
+      setAutoSaveStatus("enabled");
+      hasInitialized.current = false;
+      contentAlreadySet.current = false;
+      return;
+    }
+
+    // UUID pattern matching for note IDs
+    const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const isValidNoteId = uuidPattern.test(id);
+
+    // Reset content set flag whenever ID changes
+    contentAlreadySet.current = false;
+
+    // Only try to set current note if it looks like a valid note ID
+    if (!hasInitialized.current && isValidNoteId) {
+      setCurrentNote(id);
+      hasInitialized.current = true;
+    }
+
+    // If it's not a valid note ID (likely a folder), reset the editor state
+    if (!isValidNoteId) {
+      setIsEditorReady(true);
+      setHasChanges(false);
+      setAutoSaveStatus("enabled");
+      if (editor) {
+        editor.commands.setContent("");
+      }
+      setEditorContent("");
+    }
+
+    return () => {
+      hasInitialized.current = false;
+      if (editorInitTimeout.current) {
+        clearTimeout(editorInitTimeout.current);
+      }
+      if (autoSaveTimeout.current) {
+        clearTimeout(autoSaveTimeout.current);
+      }
+    };
+  }, [id, setCurrentNote, editor]);
+
+  // 2. Combine the note fetching retry logic
+  useEffect(() => {
+    const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const isValidNoteId = id && uuidPattern.test(id);
+    
+    let retryTimer;
+    if (isValidNoteId && !currentNote && !isLoading && retryCount < maxRetries) {
+      retryTimer = setTimeout(() => {
+        refreshCurrentNote && refreshCurrentNote();
+        setRetryCount((prev) => prev + 1);
+      }, 1000 * (retryCount + 1));
+    }
+
+    if (currentNote || !isValidNoteId) {
+      if (retryCount > 0) {
+        setRetryCount(0);
+      }
+    }
+
+    return () => {
+      if (retryTimer) clearTimeout(retryTimer);
+    };
+  }, [id, currentNote, isLoading, retryCount, refreshCurrentNote, maxRetries]);
+
+  // 3. Process note content immediately after currentNote changes
+  useEffect(() => {
+    if (currentNote) {
+      let noteContent = "";
+
+      if (currentNote.markdown) {
+        noteContent = currentNote.markdown;
+      } else if (currentNote.content) {
+        if (typeof currentNote.content === "object") {
+          if (Object.keys(currentNote.content).length === 0) {
+            noteContent = "";
+          } else {
+            try {
+              noteContent = currentNote.content.content
+                ? currentNote.content.content
+                : JSON.stringify(currentNote.content);
+            } catch (e) {
+              noteContent = "";
+              toast.error(e);
+            }
+          }
+        } else {
+          noteContent = currentNote.content;
+        }
+      }
+
+      if (noteContent === "{}") {
+        noteContent = "";
+      }
+
+      setEditorContent(noteContent || "");
+      setHasChanges(false);
+    }
+  }, [currentNote]);
+
+  // Format the last saved time
+  const formatLastSaved = () => {
+    if (!lastSaved) return "Not saved yet";
+
+    const now = new Date();
+    const diff = now - lastSaved;
+
+    if (diff < 60000) {
+      return "Saved just now";
+    } else if (diff < 3600000) {
+      const minutes = Math.floor(diff / 60000);
+      return `Saved ${minutes} minute${minutes > 1 ? "s" : ""} ago`;
+    } else {
+      return `Saved at ${lastSaved.toLocaleTimeString()}`;
+    }
+  };
+
+  // Color presets with better colors that work in both light/dark modes
+  const colorPresets = [
+    { color: "#E03131", name: "Red" },
+    { color: "#2F9E44", name: "Green" },
+    { color: "#1971C2", name: "Blue" },
+    { color: "#F08C00", name: "Orange" },
+    { color: "#6741D9", name: "Purple" },
+    { color: "#0CA678", name: "Teal" },
+    { color: "#E64980", name: "Pink" },
+    { color: "#3BC9DB", name: "Cyan" },
+  ];
+
+  // Save content functionality
   const handleSaveContent = useCallback(
     (showToast = true) => {
       if (!currentNote || !editor) return;
 
       try {
-        // Use editor.getHTML() directly without space replacement
         const content = editor.getHTML();
 
-        // Don't save if content is empty object or actual empty string
         if (content === "{}" || content === "") {
           return;
         }
 
-        // Set status before saving
         setAutoSaveStatus("pending");
 
         updateNote({
@@ -332,16 +322,10 @@ export function useTextEditor() {
           folder_id: currentNote.folder_id,
         });
 
-        // Update last saved time
         setLastSaved(new Date());
-
-        // Reset changes flag
         setHasChanges(false);
-
-        // Update status after saving
         setAutoSaveStatus("saved");
 
-        // Reset status after a delay
         setTimeout(() => {
           setAutoSaveStatus("enabled");
         }, 3000);
@@ -351,8 +335,6 @@ export function useTextEditor() {
         }
       } catch (error) {
         setAutoSaveStatus("failed");
-
-        // Reset status after a delay
         setTimeout(() => {
           setAutoSaveStatus("enabled");
         }, 3000);
@@ -404,7 +386,6 @@ export function useTextEditor() {
         const reader = new FileReader();
         reader.onload = (e) => {
           editor.commands.setContent(e.target.result);
-          // Automatically save after import
           setTimeout(() => handleSaveContent(), 500);
         };
         reader.readAsText(file);
@@ -421,40 +402,26 @@ export function useTextEditor() {
     [editor]
   );
 
-  // All effects that depend on editor are defined after editor initialization
-
   // Visibility change handler
   useEffect(() => {
-    if (!editor) return; // Only run when editor is available
+    if (!editor) return;
 
     const handleVisibilityChange = () => {
-      // When tab becomes hidden, save content immediately
       if (document.visibilityState === "hidden" && hasChanges) {
-        console.log("Tab hidden, saving content...");
         if (handleSaveContentRef.current) {
           handleSaveContentRef.current(false);
         }
       }
 
-      // When tab becomes visible again, refresh content if needed
       if (document.visibilityState === "visible" && currentNote) {
-        console.log("Tab visible, refetching content from server...");
-
-        // Force refetch the current note from the server
         if (refreshCurrentNote) {
           refreshCurrentNote();
-
-          // After refetching, set a flag or directly update the note content
           setHasChanges(false);
-
-          // We don't need to manually update the editor content here
-          // The useEffect that watches for currentNote changes will handle it
         }
       }
     };
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
-
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
@@ -463,8 +430,8 @@ export function useTextEditor() {
   // Editor content initialization
   useEffect(() => {
     if (!editor || !isEditorReady) return;
-
-    if (currentNote) {
+    
+    if (currentNote && !contentAlreadySet.current) {
       try {
         let noteContent = "";
 
@@ -487,33 +454,42 @@ export function useTextEditor() {
           }
         }
 
-        // Remove literal "{}" if present
         if (noteContent === "{}") {
           noteContent = "";
         }
 
-        // Set editor content
         editor.commands.setContent(noteContent);
         setEditorContent(noteContent);
-        
-        // Reset changes flag after loading content
+        contentAlreadySet.current = true;
         setHasChanges(false);
+        setAutoSaveStatus("enabled");
       } catch (error) {
         toast.error("Error loading note content: " + error.message);
       }
+    } else if (!currentNote) {
+      editor.commands.setContent("");
+      setEditorContent("");
+      setHasChanges(false);
+      setAutoSaveStatus("enabled");
+      contentAlreadySet.current = false;
     }
+    
+    return () => {
+      if (contentAlreadySet.current) {
+        contentAlreadySet.current = false;
+      }
+    };
   }, [editor, isEditorReady, currentNote]);
 
   // Force editor ready timeout
   useEffect(() => {
     if (!editor) return;
 
-    // Force editor ready after timeout to prevent infinite "preparing editor" state
     let readyTimeoutId;
     if (!isEditorReady) {
       readyTimeoutId = setTimeout(() => {
         setIsEditorReady(true);
-      }, 1000); // Reduced to 1 second for better UX
+      }, 1000);
     }
 
     return () => {
@@ -525,23 +501,18 @@ export function useTextEditor() {
   useEffect(() => {
     if (!editor) return;
 
-    // Define a function to handle paste events
     const handlePaste = (event) => {
       const editorElement = document.querySelector(".ProseMirror");
       if (!editorElement || !event.target.closest(".ProseMirror")) return;
-      // Let the editor handle paste normally
     };
 
-    // Add event listener
     document.addEventListener("paste", handlePaste);
-
-    // Clean up
     return () => {
       document.removeEventListener("paste", handlePaste);
     };
   }, [editor]);
 
-  // Calculate word and character counts - now these are safe because editor is defined before
+  // Calculate word and character counts
   const wordCount = editor
     ? editor
         .getText()

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { EditorContent, BubbleMenu } from "@tiptap/react";
 import { Bold, Italic, Link as LinkIcon } from "lucide-react";
 import { FormatButton } from "./FormatButton";
@@ -32,11 +32,24 @@ export function TextEditor() {
     setIsEditorReady,
   } = useTextEditor();
 
+  // Force editor ready if it takes too long
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (!isEditorReady && editor) {
+        setIsEditorReady(true);
+      }
+    }, 2500);
+    
+    return () => clearTimeout(timeoutId);
+  }, [editor, isEditorReady, setIsEditorReady]);
+
   if (isLoading) {
     return (
       <div className="flex flex-col p-4 text-center gap-4 items-center">
         <div className="border-4 border-gray-200 border-t-green-500 h-8 rounded-full w-8 animate-spin"></div>
-        <div className="text-gray-500 text-sm">Loading note data...</div>
+        <div className={`text-sm ${isDark ? "text-amber-200/70" : "text-gray-500"}`}>
+          Loading note data...
+        </div>
       </div>
     );
   }
@@ -44,7 +57,9 @@ export function TextEditor() {
   if (!id) {
     return (
       <div className="flex flex-col p-4 text-center gap-4 items-center">
-        <div className={`text-lg font-medium ${isDark ? "text-amber-100" : "text-gray-800"}`}>No Note Selected</div>
+        <div className={`text-lg font-medium ${isDark ? "text-amber-100" : "text-gray-800"}`}>
+          No Note Selected
+        </div>
         <div className={`text-sm max-w-md ${isDark ? "text-amber-200/70" : "text-gray-500"}`}>
           Please select a note from the sidebar to start editing.
         </div>
@@ -59,9 +74,11 @@ export function TextEditor() {
   if (!isValidNoteId) {
     return (
       <div className="flex flex-col p-4 text-center gap-4 items-center">
-        <div className={`text-lg font-medium ${isDark ? "text-amber-100" : "text-gray-800"}`}>Folder Selected</div>
+        <div className={`text-lg font-medium ${isDark ? "text-amber-100" : "text-gray-800"}`}>
+          Invalid Note ID
+        </div>
         <div className={`text-sm max-w-md ${isDark ? "text-amber-200/70" : "text-gray-500"}`}>
-          This appears to be a folder. Please select a note from the sidebar to edit.
+          The note ID "{id}" is not valid. Please select a note from the sidebar.
         </div>
       </div>
     );
@@ -70,8 +87,10 @@ export function TextEditor() {
   if (!currentNote) {
     return (
       <div className="flex flex-col p-4 text-center gap-4 items-center">
-        <div className="text-lg font-medium">Note not found</div>
-        <div className="text-gray-500 text-sm max-w-md">
+        <div className={`text-lg font-medium ${isDark ? "text-amber-100" : "text-gray-800"}`}>
+          Note not found
+        </div>
+        <div className={`text-sm max-w-md ${isDark ? "text-amber-200/70" : "text-gray-500"}`}>
           The note with ID "{id}" could not be found. It may have been deleted
           or you don't have permission to view it.
         </div>
@@ -152,7 +171,6 @@ export function TextEditor() {
             </div>
           </div>
 
-          {/* Editor Toolbar Components */}
           <EditorToolbar
             editor={editor}
             handleSaveContent={handleSaveContent}
@@ -165,7 +183,6 @@ export function TextEditor() {
             setTextColor={setTextColor}
           />
 
-          {/* Editor Content Area - add specific CSS for space preservation */}
           <div
             className={`flex flex-col overflow-auto min-h-[60vh] rounded-b-lg
               ${isDark ? "border-amber-900/50 text-amber-100" : ""}
@@ -183,7 +200,6 @@ export function TextEditor() {
             />
           </div>
 
-          {/* Auto-save indicator */}
           <div
             className={`m-2 text-sm self-end align-bottom absolute bottom-0 right-0 ${
               isDark ? "text-amber-200" : "text-gray-500"
@@ -211,7 +227,6 @@ export function TextEditor() {
             </span>
           </div>
 
-          {/* Save reminder banner - only shows when there are unsaved changes */}
           {(hasChanges || autoSaveStatus === "unsaved") && (
             <div
               className={`fixed bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-lg shadow-lg z-50 flex items-center gap-2 transition-opacity duration-300 ${
@@ -237,7 +252,6 @@ export function TextEditor() {
           )}
         </div>
 
-        {/* Bubble Menu - appears when selecting text */}
         {editor && (
           <BubbleMenu
             editor={editor}

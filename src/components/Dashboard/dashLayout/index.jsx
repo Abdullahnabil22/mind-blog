@@ -5,16 +5,16 @@ import {
   SidebarInset,
 } from "@/components/ui/sidebar";
 import { AppSidebar } from "../../reusable/appSidebar";
-import { useSettingsStore } from "../../../stores";
+import { useTheme } from "../../../hooks/useTheme";
 import { NotePathBreadcrumb } from "./NoteBreadcrumb";
 
 export function DashLayout() {
-  const { theme } = useSettingsStore();
+  const { theme } = useTheme();
   const isDark = theme !== "light";
   const { id } = useParams();
 
   return (
-    <div className="min-h-screen w-full overflow-hidden">
+    <div className="w-full min-h-screen overflow-hidden">
       <SidebarProvider
         style={{
           backgroundColor: isDark ? "#000e07" : "#f5f4f4",
@@ -26,8 +26,8 @@ export function DashLayout() {
             isDark ? "bg-[#00170C] text-amber-100" : "bg-white text-black"
           }`}
         >
-          <div className="p-4 h-full">
-            <div className="flex items-center mb-4 gap-2">
+          <div className="h-full p-4">
+            <div className="flex gap-2 items-center mb-4">
               <SidebarTrigger
                 className={`cursor-pointer ${
                   isDark

@@ -32,7 +32,7 @@ export function EditorToolbar({
 
   // Helper for rendering dividers
   const renderDivider = () => (
-    <div className="w-px h-6 mx-1 self-center bg-gray-300" />
+    <div className="bg-gray-300 h-6 w-px mx-1 self-center" />
   );
 
   return (
@@ -158,7 +158,7 @@ export function EditorToolbar({
         {renderDivider()}
 
         {/* Color Dropdown with improved interaction */}
-        <div className="relative group">
+        <div className="group relative">
           <FormatButton
             icon={Palette}
             tooltip="Text Color"
@@ -176,7 +176,7 @@ export function EditorToolbar({
             {colorPresets.map((preset) => (
               <button
                 key={preset.color}
-                className="w-8 h-8 rounded-full flex items-center justify-center transition-transform hover:scale-110 cursor-pointer"
+                className="flex h-8 justify-center rounded-full w-8 cursor-pointer hover:scale-110 items-center transition-transform"
                 style={{
                   backgroundColor: preset.color,
                   boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
@@ -193,7 +193,7 @@ export function EditorToolbar({
             <div className="col-span-4 mt-2">
               <input
                 type="color"
-                className="w-full h-8 cursor-pointer rounded"
+                className="h-8 rounded w-full cursor-pointer"
                 onChange={(e) => setTextColor(e.target.value)}
                 onMouseDown={(e) => e.stopPropagation()}
               />
