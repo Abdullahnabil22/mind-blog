@@ -14,10 +14,10 @@ export const NotesHeader = () => {
         <Button
           variant="ghost"
           size="icon"
-          className={`w-5 h-5 ${
+          className={`w-5 h-5 cursor-pointer ${
             isDark
-              ? "text-amber-100 hover:bg-gray-800"
-              : "text-gray-700 hover:bg-gray-100"
+              ? "text-amber-100 hover:bg-amber-100"
+              : "text-gray-700 hover:bg-gray-300"
           }`}
           onClick={() => setIsCreateNoteOpen(true)}
         >
