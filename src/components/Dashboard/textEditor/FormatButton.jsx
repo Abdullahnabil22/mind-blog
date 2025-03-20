@@ -25,29 +25,38 @@ export const FormatButton = forwardRef(function FormatButton(props, ref) {
   };
 
   return (
-    <button
-      ref={ref}
-      onMouseDown={handleClick}
-      disabled={disabled}
-      aria-pressed={isActive}
-      aria-label={tooltip}
-      title={tooltip}
-      className={`p-2 rounded-md transition-colors cursor-pointer ${
-        disabled
-          ? "opacity-50 cursor-not-allowed"
-          : isActive
-          ? isDark
-            ? "bg-amber-700 text-amber-100"
-            : "bg-gray-200 text-gray-900"
-          : isDark
-          ? "text-amber-100 hover:bg-amber-900/50"
-          : "hover:bg-gray-100"
-      } ${className || ""}`}
-      type="button"
-      {...otherProps}
-    >
-      {Icon && <Icon size={size} />}
-      {props.children}
-    </button>
+    <div className="relative">
+      {isActive && (
+        <div
+          className={`absolute left-0 top-1/2 -translate-y-1/2 w-1 h-2/3 rounded-full ${
+            isDark ? "bg-amber-500" : "bg-green-500"
+          }`}
+        />
+      )}
+      <button
+        ref={ref}
+        onMouseDown={handleClick}
+        disabled={disabled}
+        aria-pressed={isActive}
+        aria-label={tooltip}
+        title={tooltip}
+        className={`p-2 rounded-md transition-colors cursor-pointer ${
+          disabled
+            ? "opacity-50 cursor-not-allowed"
+            : isActive
+            ? isDark
+              ? "bg-amber-700/50 text-amber-100 pl-3"
+              : "bg-gray-200/80 text-gray-900 pl-3"
+            : isDark
+            ? "text-amber-100 hover:bg-amber-900/50"
+            : "hover:bg-gray-100"
+        } ${className || ""}`}
+        type="button"
+        {...otherProps}
+      >
+        {Icon && <Icon size={size} />}
+        {props.children}
+      </button>
+    </div>
   );
 });

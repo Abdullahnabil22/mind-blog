@@ -4,11 +4,10 @@ import { useNotes } from "../../../stores/useNotesStore";
 import { useTheme } from "../../../hooks/useTheme";
 import { useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import Link from "@tiptap/extension-link";
-import Heading from "@tiptap/extension-heading";
 import Color from "@tiptap/extension-color";
 import TextStyle from "@tiptap/extension-text-style";
 import Placeholder from "@tiptap/extension-placeholder";
+import TextAlign from "@tiptap/extension-text-align";
 import toast from "react-hot-toast";
 
 export function useTextEditor() {
@@ -51,18 +50,11 @@ export function useTextEditor() {
           },
         },
       }),
-      Link.configure({
-        openOnClick: false,
-        validate: (href) => /^https?:\/\//.test(href),
-      }),
-      Heading.configure({
-        levels: [1, 2, 3],
-        HTMLAttributes: {
-          class: "mt-4 mb-2",
-        },
-      }),
       TextStyle,
       Color,
+      TextAlign.configure({
+        types: ["heading", "paragraph"],
+      }),
       Placeholder.configure({
         placeholder: "Start writing here...",
         emptyEditorClass: "is-editor-empty",
@@ -113,6 +105,7 @@ export function useTextEditor() {
         }, 3000);
       } catch (error) {
         setAutoSaveStatus("failed");
+        toast.error(error)
         setTimeout(() => {
           setAutoSaveStatus("enabled");
         }, 3000);
@@ -152,6 +145,7 @@ export function useTextEditor() {
           }, 3000);
         } catch (error) {
           setAutoSaveStatus("failed");
+          toast.error(error)
           setTimeout(() => {
             setAutoSaveStatus("enabled");
           }, 3000);
@@ -355,14 +349,6 @@ export function useTextEditor() {
   }, [handleSaveContent]);
 
   // Define callback functions after the editor is initialized
-  const addLink = useCallback(() => {
-    if (!editor) return;
-    const url = window.prompt("URL:");
-    if (url) {
-      editor.chain().focus().setLink({ href: url }).run();
-    }
-  }, [editor]);
-
   const exportContent = useCallback(() => {
     const blob = new Blob([editorContent], { type: "text/html" });
     const url = URL.createObjectURL(blob);
@@ -534,7 +520,6 @@ export function useTextEditor() {
     wordCount,
     characterCount,
     formatLastSaved,
-    addLink,
     exportContent,
     importContent,
     setTextColor,

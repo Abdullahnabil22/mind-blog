@@ -6,7 +6,6 @@ import {
   Heading1,
   Heading2,
   Heading3,
-  Link as LinkIcon,
   List,
   ListOrdered,
   Palette,
@@ -15,6 +14,9 @@ import {
   FileUp,
   Undo,
   Redo,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
 } from "lucide-react";
 
 export function EditorToolbar({
@@ -22,7 +24,6 @@ export function EditorToolbar({
   handleSaveContent,
   exportContent,
   importContent,
-  addLink,
   isDark,
   hasChanges,
   colorPresets,
@@ -87,13 +88,13 @@ export function EditorToolbar({
             : "border-gray-200 bg-gray-50"
         }`}
       >
+        {/* Text Style */}
         <FormatButton
           onClick={() => editor.chain().focus().toggleBold().run()}
           isActive={editor.isActive("bold")}
           icon={Bold}
           tooltip="Bold"
         />
-
         <FormatButton
           onClick={() => editor.chain().focus().toggleItalic().run()}
           isActive={editor.isActive("italic")}
@@ -103,42 +104,50 @@ export function EditorToolbar({
 
         {renderDivider()}
 
-        <FormatButton
-          onClick={() =>
-            editor.chain().focus().toggleHeading({ level: 1 }).run()
-          }
-          isActive={editor.isActive("heading", { level: 1 })}
-          icon={Heading1}
-          tooltip="Heading 1"
-        />
-
-        <FormatButton
-          onClick={() =>
-            editor.chain().focus().toggleHeading({ level: 2 }).run()
-          }
-          isActive={editor.isActive("heading", { level: 2 })}
-          icon={Heading2}
-          tooltip="Heading 2"
-        />
-
-        <FormatButton
-          onClick={() =>
-            editor.chain().focus().toggleHeading({ level: 3 }).run()
-          }
-          isActive={editor.isActive("heading", { level: 3 })}
-          icon={Heading3}
-          tooltip="Heading 3"
-        />
+        {/* Headings Dropdown */}
+        <div className="group relative">
+          <FormatButton
+            icon={Heading1}
+            tooltip="Headings"
+            isActive={editor.isActive("heading")}
+          />
+          <div
+            className={`absolute z-10 left-0 mt-1 w-48 p-2 rounded-md shadow-lg hidden group-hover:block ${
+              isDark
+                ? "bg-[#001F10] border border-amber-900/50"
+                : "bg-white border border-gray-200"
+            }`}
+          >
+            <button
+              className="rounded text-left w-full dark:hover:bg-amber-900/50 hover:bg-gray-100 px-2 py-1"
+              onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+            >
+              Heading 1
+            </button>
+            <button
+              className="rounded text-left w-full dark:hover:bg-amber-900/50 hover:bg-gray-100 px-2 py-1"
+              onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+            >
+              Heading 2
+            </button>
+            <button
+              className="rounded text-left w-full dark:hover:bg-amber-900/50 hover:bg-gray-100 px-2 py-1"
+              onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+            >
+              Heading 3
+            </button>
+          </div>
+        </div>
 
         {renderDivider()}
 
+        {/* Lists */}
         <FormatButton
           onClick={() => editor.chain().focus().toggleBulletList().run()}
           isActive={editor.isActive("bulletList")}
           icon={List}
           tooltip="Bullet List"
         />
-
         <FormatButton
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
           isActive={editor.isActive("orderedList")}
@@ -148,24 +157,35 @@ export function EditorToolbar({
 
         {renderDivider()}
 
+        {/* Alignment */}
         <FormatButton
-          onClick={addLink}
-          isActive={editor.isActive("link")}
-          icon={LinkIcon}
-          tooltip="Add Link"
+          onClick={() => editor.chain().focus().setTextAlign("left").run()}
+          isActive={editor.isActive({ textAlign: "left" })}
+          icon={AlignLeft}
+          tooltip="Align Left"
+        />
+        <FormatButton
+          onClick={() => editor.chain().focus().setTextAlign("center").run()}
+          isActive={editor.isActive({ textAlign: "center" })}
+          icon={AlignCenter}
+          tooltip="Align Center"
+        />
+        <FormatButton
+          onClick={() => editor.chain().focus().setTextAlign("right").run()}
+          isActive={editor.isActive({ textAlign: "right" })}
+          icon={AlignRight}
+          tooltip="Align Right"
         />
 
         {renderDivider()}
 
-        {/* Color Dropdown with improved interaction */}
+        {/* Color Dropdown */}
         <div className="group relative">
           <FormatButton
             icon={Palette}
             tooltip="Text Color"
             isActive={editor.isActive("textStyle")}
           />
-
-          {/* Color Palette Dropdown */}
           <div
             className={`absolute z-10 left-0 mt-1 w-48 p-2 rounded-md shadow-lg hidden group-hover:grid grid-cols-4 gap-2 ${
               isDark
@@ -188,8 +208,6 @@ export function EditorToolbar({
                 }}
               />
             ))}
-
-            {/* Custom color picker */}
             <div className="col-span-4 mt-2">
               <input
                 type="color"
