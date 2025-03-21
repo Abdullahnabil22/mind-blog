@@ -6,6 +6,7 @@ import { useNotes } from "../../../../stores/useNotesStore";
 import { ConfirmationDialog } from "../../../reusable/confirmationDialog";
 import { RenameDialog } from "../../../reusable/renameDialog";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router";
 
 // Component to render a single note
 export const NoteItem = ({ note, level = 0 }) => {
@@ -17,6 +18,7 @@ export const NoteItem = ({ note, level = 0 }) => {
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [noteTitle, setNoteTitle] = useState(note.title);
   const { updateNote, deleteNote } = useNotes();
+  const navigate = useNavigate();
 
   const handleRenameNote = async () => {
     if (!noteTitle.trim()) {
@@ -41,6 +43,8 @@ export const NoteItem = ({ note, level = 0 }) => {
       await deleteNote(note.id);
       setIsDeleteConfirmOpen(false);
       toast.success("Note deleted successfully!");
+      // Navigate away if we're on the deleted note's page
+      navigate("/workspace");
     } catch (error) {
       toast.error("Error deleting note: " + error.message);
     }
@@ -53,8 +57,8 @@ export const NoteItem = ({ note, level = 0 }) => {
       } group relative`}
       style={{ paddingLeft }}
       onClick={() => {
-        // Handle note click - e.g., open note editor
-        // You can add navigation here later
+        // Navigate to the note editor
+        navigate(`/workspace/${note.id}`);
       }}
     >
       <div className="w-4 mr-1" />
@@ -70,17 +74,17 @@ export const NoteItem = ({ note, level = 0 }) => {
       >
         {note.title}
       </span>
-      <div className="ml-auto opacity-0 group-hover:opacity-100">
+      <div className="group-hover:opacity-100 ml-auto opacity-0">
         <Button
           variant="ghost"
           size="icon"
-          className="w-6 h-6 cursor-pointer"
+          className="h-6 w-6 cursor-pointer"
           onClick={(e) => {
             e.stopPropagation();
             setShowOptions(!showOptions);
           }}
         >
-          <MoreVertical className="w-3 h-3" />
+          <MoreVertical className="h-3 w-3" />
         </Button>
 
         {/* Simple inline menu */}
@@ -102,7 +106,7 @@ export const NoteItem = ({ note, level = 0 }) => {
                 setIsRenameDialogOpen(true);
               }}
             >
-              <Pencil className="w-3.5 h-3.5 mr-2" />
+              <Pencil className="h-3.5 w-3.5 mr-2" />
               <span>Rename</span>
             </button>
             <button
@@ -114,7 +118,7 @@ export const NoteItem = ({ note, level = 0 }) => {
                 setIsDeleteConfirmOpen(true);
               }}
             >
-              <Trash2 className="w-3.5 h-3.5 mr-2" />
+              <Trash2 className="h-3.5 w-3.5 mr-2" />
               <span>Delete</span>
             </button>
           </div>

@@ -155,10 +155,8 @@ export function useNotes(folderId = null, tagId = null) {
   } = useNotesStore();
   const queryClient = useQueryClient();
   
-  // Get current user from auth store
   const { user } = useAuth();
   
-  // Update to use object syntax
   const { 
     data: notes = [], 
     isLoading: queryLoading,
@@ -183,8 +181,6 @@ export function useNotes(folderId = null, tagId = null) {
       
       if (error) throw error;
       
-      // If filtering by tag, we need to do it client-side
-      // since it's a many-to-many relationship
       if (tagId) {
         return data.filter(note => 
           note.tags.some(t => t.tags.id === tagId)
@@ -196,7 +192,6 @@ export function useNotes(folderId = null, tagId = null) {
     ...defaultQueryConfig()
   });
   
-  // Fetch single note with React Query
   const { 
     data: currentNote = null, 
     isLoading: currentNoteLoading,
@@ -206,42 +201,58 @@ export function useNotes(folderId = null, tagId = null) {
     queryFn: async () => {
       if (!currentNoteId) return null;
       
-      const { data, error } = await supabase
-        .from("notes")
-        .select(
-          `
-          *,
-          folder:folders(id, name),
-          tags:note_tags(tags(*)),
-          links:note_links(
+      try {
+        const { data, error } = await supabase
+          .from("notes")
+          .select(`
+            id,
+            title,
+            content,
+            markdown,
+            folder_id,
+            created_at,
+            updated_at,
+            user_id,
+            folder:folders(id, name),
+            tags:note_tags(tags(id, name, color))
+          `)
+          .eq("id", currentNoteId)
+          .single();
+
+        if (error) throw error;
+
+        const { data: linksData, error: linksError } = await supabase
+          .from("note_links")
+          .select(`
             id,
             target_note_id,
             link_type,
             target:notes!note_links_target_note_id_fkey(id, title)
-          )
-        `
-        )
-        .eq("id", currentNoteId)
-        .single();
+          `)
+          .eq("source_note_id", currentNoteId);
 
-      if (error) throw error;
+        if (linksError) throw linksError;
 
-      return {
-        ...data,
-        tags: data.tags.map((t) => t.tags),
-        links: data.links.map((l) => ({
-          id: l.id,
-          targetNoteId: l.target_note_id,
-          linkType: l.link_type,
-          targetNote: l.target,
-        })),
-      };
+        return {
+          ...data,
+          tags: data.tags.map((t) => t.tags),
+          links: linksData.map((l) => ({
+            id: l.id,
+            targetNoteId: l.target_note_id,
+            linkType: l.link_type,
+            targetNote: l.target,
+          })),
+        };
+      } catch (error) {
+        queryClient.removeQueries(['note', currentNoteId]);
+        throw error;
+      }
     },
     enabled: !!currentNoteId,
+    retry: 1,
     ...sessionQueryConfig()
   });
   
-  // Update createNote mutation
   const createNoteMutation = useMutation({
     mutationFn: async (noteData) => {
       const { data, error } = await supabase
@@ -259,16 +270,13 @@ export function useNotes(folderId = null, tagId = null) {
       return data[0];
     },
     onSuccess: (newNote) => {
-      // Update cache directly
       queryClient.setQueryData(['notes'], (oldData) => {
         return oldData ? [newNote, ...oldData] : [newNote];
       });
-      // Still invalidate to ensure consistency
       queryClient.invalidateQueries({ queryKey: ['notes'] });
     }
   });
   
-  // Update updateNote mutation
   const updateNoteMutation = useMutation({
     mutationFn: async (noteData) => {
       const { data, error } = await supabase
@@ -286,27 +294,23 @@ export function useNotes(folderId = null, tagId = null) {
       return data[0];
     },
     onSuccess: (updatedNote) => {
-      // Update notes list cache
       queryClient.setQueryData(['notes'], (oldData) => {
         return oldData ? oldData.map(note => 
           note.id === updatedNote.id ? { ...note, ...updatedNote } : note
         ) : oldData;
       });
 
-      // Update current note cache if it's the one being edited
       if (currentNoteId === updatedNote.id) {
         queryClient.setQueryData(['note', currentNoteId], (oldData) => {
           return oldData ? { ...oldData, ...updatedNote } : oldData;
         });
       }
 
-      // Still invalidate to ensure consistency
       queryClient.invalidateQueries({ queryKey: ['notes'] });
       queryClient.invalidateQueries({ queryKey: ['note', currentNoteId] });
     }
   });
   
-  // Update deleteNote mutation
   const deleteNoteMutation = useMutation({
     mutationFn: async (id) => {
       const { error } = await supabase
@@ -316,7 +320,6 @@ export function useNotes(folderId = null, tagId = null) {
       
       if (error) throw error;
       
-      // Clear current note if it was deleted
       if (currentNoteId === id) {
         clearCurrentNote();
       }
@@ -324,22 +327,18 @@ export function useNotes(folderId = null, tagId = null) {
       return id;
     },
     onSuccess: (deletedId) => {
-      // Update cache directly
       queryClient.setQueryData(['notes'], (oldData) => {
         return oldData ? oldData.filter(note => note.id !== deletedId) : oldData;
       });
       
-      // Invalidate notes query
       queryClient.invalidateQueries({ queryKey: ['notes'] });
       
-      // If the deleted note was the current note, remove it from cache
       if (currentNoteId === deletedId) {
         queryClient.removeQueries({ queryKey: ['note', deletedId] });
       }
     }
   });
   
-  // Update addTag mutation
   const addTagMutation = useMutation({
     mutationFn: async ({ noteId, tagId }) => {
       const { data, error } = await supabase
@@ -354,13 +353,11 @@ export function useNotes(folderId = null, tagId = null) {
       return data[0];
     },
     onSuccess: () => {
-      // Invalidate to refresh - harder to update cache manually for tags
       queryClient.invalidateQueries({ queryKey: ['notes'] });
       queryClient.invalidateQueries({ queryKey: ['note', currentNoteId] });
     }
   });
   
-  // Update removeTag mutation
   const removeTagMutation = useMutation({
     mutationFn: async ({ noteId, tagId }) => {
       const { error } = await supabase
@@ -372,7 +369,6 @@ export function useNotes(folderId = null, tagId = null) {
       return { noteId, tagId };
     },
     onSuccess: () => {
-      // Invalidate to refresh - harder to update cache manually for tags
       queryClient.invalidateQueries({ queryKey: ['notes'] });
       queryClient.invalidateQueries({ queryKey: ['note', currentNoteId] });
     }
