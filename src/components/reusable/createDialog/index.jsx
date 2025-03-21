@@ -20,7 +20,7 @@ export function CreateDialog({
 }) {
   const { theme } = useTheme();
   const isDark = theme !== "light";
-  
+
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -67,7 +67,7 @@ export function CreateDialog({
             </Button>
             <Button
               onClick={handleCreateContent}
-              className="bg-green-500 hover:bg-green-600 text-white"
+              className="bg-green-500 hover:bg-green-600 text-white cursor-pointer"
             >
               Create
             </Button>
