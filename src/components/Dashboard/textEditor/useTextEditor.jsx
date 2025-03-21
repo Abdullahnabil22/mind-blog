@@ -8,6 +8,8 @@ import Color from "@tiptap/extension-color";
 import TextStyle from "@tiptap/extension-text-style";
 import Placeholder from "@tiptap/extension-placeholder";
 import TextAlign from "@tiptap/extension-text-align";
+import ListItem from "@tiptap/extension-list-item";
+import Link from "@tiptap/extension-link";
 import toast from "react-hot-toast";
 
 export function useTextEditor() {
@@ -49,15 +51,66 @@ export function useTextEditor() {
             class: "my-2 whitespace-pre-wrap",
           },
         },
+        heading: {
+          levels: [1, 2, 3, 4, 5, 6],
+          HTMLAttributes: ({ level }) => ({
+            class: `heading-${level} font-bold whitespace-pre-wrap`,
+          }),
+        },
+        bulletList: {
+          keepMarks: true,
+          keepAttributes: true,
+          HTMLAttributes: {
+            class: 'bullet-list',
+          },
+        },
+        orderedList: {
+          keepMarks: true,
+          keepAttributes: true,
+          HTMLAttributes: {
+            class: 'ordered-list',
+          },
+        },
+        listItem: {
+          HTMLAttributes: {
+            class: 'list-item',
+          },
+        },
+        code: {
+          HTMLAttributes: {
+            class: 'bg-gray-100 dark:bg-amber-900/30 px-1.5 py-0.5 rounded font-mono text-sm',
+          },
+        },
+        codeBlock: {
+          HTMLAttributes: {
+            class: 'bg-gray-100 dark:bg-amber-900/20 rounded p-4 my-4 font-mono text-sm overflow-x-auto',
+          },
+        },
+        blockquote: {
+          HTMLAttributes: {
+            class: 'border-l-4 border-gray-300 dark:border-amber-700 pl-4 my-4 italic',
+          },
+        },
       }),
-      TextStyle,
-      Color,
+      TextStyle.configure({ types: [ListItem.name] }),
+      Color.configure({ types: [TextStyle.name, ListItem.name] }),
       TextAlign.configure({
-        types: ["heading", "paragraph"],
+        types: ['heading', 'paragraph'],
+      }),
+      ListItem.configure({
+        HTMLAttributes: {
+          class: 'list-item',
+        },
       }),
       Placeholder.configure({
         placeholder: "Start writing here...",
         emptyEditorClass: "is-editor-empty",
+      }),
+      Link.configure({
+        openOnClick: true,
+        HTMLAttributes: {
+          class: 'text-blue-500 dark:text-amber-400 underline cursor-pointer',
+        },
       }),
     ],
     content: "",
@@ -388,6 +441,32 @@ export function useTextEditor() {
     [editor]
   );
 
+  const addLink = useCallback(() => {
+    if (!editor) return;
+    
+    const previousUrl = editor.getAttributes('link').href;
+    const url = window.prompt('URL', previousUrl);
+    
+    // cancelled
+    if (url === null) {
+      return;
+    }
+    
+    // empty
+    if (url === '') {
+      editor.chain().focus().extendMarkRange('link').unsetLink().run();
+      return;
+    }
+    
+    // Add https:// if protocol is missing
+    const normalizedUrl = url.startsWith('http://') || url.startsWith('https://') 
+      ? url 
+      : `https://${url}`;
+      
+    // update link
+    editor.chain().focus().extendMarkRange('link').setLink({ href: normalizedUrl }).run();
+  }, [editor]);
+
   // Visibility change handler
   useEffect(() => {
     if (!editor) return;
@@ -523,6 +602,7 @@ export function useTextEditor() {
     exportContent,
     importContent,
     setTextColor,
+    addLink,
     handleSaveContent,
     id,
     retryCount,

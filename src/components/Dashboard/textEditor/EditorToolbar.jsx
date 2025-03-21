@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { FormatButton } from "./FormatButton";
 import {
   Bold,
@@ -17,6 +17,14 @@ import {
   AlignLeft,
   AlignCenter,
   AlignRight,
+  Strikethrough,
+  Code,
+  Quote,
+  Minus,
+  Type,
+  X,
+  Terminal,
+  PenTool,
 } from "lucide-react";
 
 export function EditorToolbar({
@@ -29,6 +37,38 @@ export function EditorToolbar({
   colorPresets,
   setTextColor,
 }) {
+  const [isTextMenuOpen, setIsTextMenuOpen] = useState(false);
+  const [isColorMenuOpen, setIsColorMenuOpen] = useState(false);
+  
+  const textMenuRef = useRef(null);
+  const colorMenuRef = useRef(null);
+  const textButtonRef = useRef(null);
+  const colorButtonRef = useRef(null);
+
+  // Handle clicks outside menus to close them
+  useEffect(() => {
+    function handleClickOutside(event) {
+      // For text menu
+      if (isTextMenuOpen && textMenuRef.current && !textMenuRef.current.contains(event.target) && 
+          textButtonRef.current && !textButtonRef.current.contains(event.target)) {
+        setIsTextMenuOpen(false);
+      }
+      
+      // For color menu
+      if (isColorMenuOpen && colorMenuRef.current && !colorMenuRef.current.contains(event.target) && 
+          colorButtonRef.current && !colorButtonRef.current.contains(event.target)) {
+        setIsColorMenuOpen(false);
+      }
+    }
+    
+    // Add event listener
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      // Remove event listener on cleanup
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isTextMenuOpen, isColorMenuOpen]);
+
   if (!editor) return null;
 
   // Helper for rendering dividers
@@ -68,13 +108,13 @@ export function EditorToolbar({
         {renderDivider()}
         <FormatButton
           onClick={() => editor.chain().focus().undo().run()}
-          disabled={!editor.can().undo()}
+          disabled={!editor.can().chain().focus().undo().run()}
           tooltip="Undo"
           icon={Undo}
         />
         <FormatButton
           onClick={() => editor.chain().focus().redo().run()}
-          disabled={!editor.can().redo()}
+          disabled={!editor.can().chain().focus().redo().run()}
           tooltip="Redo"
           icon={Redo}
         />
@@ -92,51 +132,149 @@ export function EditorToolbar({
         <FormatButton
           onClick={() => editor.chain().focus().toggleBold().run()}
           isActive={editor.isActive("bold")}
+          disabled={!editor.can().chain().focus().toggleBold().run()}
           icon={Bold}
           tooltip="Bold"
         />
         <FormatButton
           onClick={() => editor.chain().focus().toggleItalic().run()}
           isActive={editor.isActive("italic")}
+          disabled={!editor.can().chain().focus().toggleItalic().run()}
           icon={Italic}
           tooltip="Italic"
+        />
+        <FormatButton
+          onClick={() => editor.chain().focus().toggleStrike().run()}
+          isActive={editor.isActive("strike")}
+          disabled={!editor.can().chain().focus().toggleStrike().run()}
+          icon={Strikethrough}
+          tooltip="Strikethrough"
+        />
+        <FormatButton
+          onClick={() => editor.chain().focus().toggleCode().run()}
+          isActive={editor.isActive("code")}
+          disabled={!editor.can().chain().focus().toggleCode().run()}
+          icon={Code}
+          tooltip="Inline Code"
         />
 
         {renderDivider()}
 
-        {/* Headings Dropdown */}
-        <div className="group relative">
-          <FormatButton
-            icon={Heading1}
-            tooltip="Headings"
-            isActive={editor.isActive("heading")}
-          />
-          <div
-            className={`absolute z-10 left-0 mt-1 w-48 p-2 rounded-md shadow-lg hidden group-hover:block ${
-              isDark
-                ? "bg-[#001F10] border border-amber-900/50"
-                : "bg-white border border-gray-200"
-            }`}
-          >
-            <button
-              className="rounded text-left w-full dark:hover:bg-amber-900/50 hover:bg-gray-100 px-2 py-1"
-              onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-            >
-              Heading 1
-            </button>
-            <button
-              className="rounded text-left w-full dark:hover:bg-amber-900/50 hover:bg-gray-100 px-2 py-1"
-              onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-            >
-              Heading 2
-            </button>
-            <button
-              className="rounded text-left w-full dark:hover:bg-amber-900/50 hover:bg-gray-100 px-2 py-1"
-              onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-            >
-              Heading 3
-            </button>
+        {/* Text Block Types */}
+        <div className="relative">
+          <div ref={textButtonRef}>
+            <FormatButton
+              onClick={() => {
+                setIsTextMenuOpen(!isTextMenuOpen);
+                setIsColorMenuOpen(false);
+              }}
+              icon={Type}
+              tooltip="Text Style"
+              isActive={editor.isActive("paragraph") || editor.isActive("heading")}
+            />
           </div>
+          {isTextMenuOpen && (
+            <div
+              ref={textMenuRef}
+              className={`absolute z-50 left-0 mt-1 w-48 p-2 rounded-md shadow-lg ${
+                isDark
+                  ? "bg-[#001F10] border border-amber-900/50"
+                  : "bg-white border border-gray-200"
+              }`}
+            >
+              <button
+                className={`rounded text-left w-full px-2 py-1 ${
+                  editor.isActive("paragraph") 
+                    ? "bg-amber-900/30 dark:bg-amber-800/70" 
+                    : "dark:hover:bg-amber-900/50 hover:bg-gray-100"
+                }`}
+                onClick={() => {
+                  editor.chain().focus().setParagraph().run();
+                  setIsTextMenuOpen(false);
+                }}
+              >
+                Paragraph
+              </button>
+              <button
+                className={`rounded text-left w-full px-2 py-1 ${
+                  editor.isActive("heading", { level: 1 }) 
+                    ? "bg-amber-900/30 dark:bg-amber-800/70" 
+                    : "dark:hover:bg-amber-900/50 hover:bg-gray-100"
+                }`}
+                onClick={() => {
+                  editor.chain().focus().toggleHeading({ level: 1 }).run();
+                  setIsTextMenuOpen(false);
+                }}
+              >
+                Heading 1
+              </button>
+              <button
+                className={`rounded text-left w-full px-2 py-1 ${
+                  editor.isActive("heading", { level: 2 }) 
+                    ? "bg-amber-900/30 dark:bg-amber-800/70" 
+                    : "dark:hover:bg-amber-900/50 hover:bg-gray-100"
+                }`}
+                onClick={() => {
+                  editor.chain().focus().toggleHeading({ level: 2 }).run();
+                  setIsTextMenuOpen(false);
+                }}
+              >
+                Heading 2
+              </button>
+              <button
+                className={`rounded text-left w-full px-2 py-1 ${
+                  editor.isActive("heading", { level: 3 }) 
+                    ? "bg-amber-900/30 dark:bg-amber-800/70" 
+                    : "dark:hover:bg-amber-900/50 hover:bg-gray-100"
+                }`}
+                onClick={() => {
+                  editor.chain().focus().toggleHeading({ level: 3 }).run();
+                  setIsTextMenuOpen(false);
+                }}
+              >
+                Heading 3
+              </button>
+              <button
+                className={`rounded text-left w-full px-2 py-1 ${
+                  editor.isActive("heading", { level: 4 }) 
+                    ? "bg-amber-900/30 dark:bg-amber-800/70" 
+                    : "dark:hover:bg-amber-900/50 hover:bg-gray-100"
+                }`}
+                onClick={() => {
+                  editor.chain().focus().toggleHeading({ level: 4 }).run();
+                  setIsTextMenuOpen(false);
+                }}
+              >
+                Heading 4
+              </button>
+              <button
+                className={`rounded text-left w-full px-2 py-1 ${
+                  editor.isActive("heading", { level: 5 }) 
+                    ? "bg-amber-900/30 dark:bg-amber-800/70" 
+                    : "dark:hover:bg-amber-900/50 hover:bg-gray-100"
+                }`}
+                onClick={() => {
+                  editor.chain().focus().toggleHeading({ level: 5 }).run();
+                  setIsTextMenuOpen(false);
+                }}
+              >
+                Heading 5
+              </button>
+              <button
+                className={`rounded text-left w-full px-2 py-1 ${
+                  editor.isActive("heading", { level: 6 }) 
+                    ? "bg-amber-900/30 dark:bg-amber-800/70" 
+                    : "dark:hover:bg-amber-900/50 hover:bg-gray-100"
+                }`}
+                onClick={() => {
+                  editor.chain().focus().toggleHeading({ level: 6 }).run();
+                  setIsTextMenuOpen(false);
+                }}
+              >
+                Heading 6
+              </button>
+            </div>
+          )}
         </div>
 
         {renderDivider()}
@@ -179,54 +317,98 @@ export function EditorToolbar({
 
         {renderDivider()}
 
+        {/* Special Blocks */}
+        <FormatButton
+          onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+          isActive={editor.isActive("codeBlock")}
+          icon={Terminal}
+          tooltip="Code Block"
+        />
+        <FormatButton
+          onClick={() => editor.chain().focus().toggleBlockquote().run()}
+          isActive={editor.isActive("blockquote")}
+          icon={Quote}
+          tooltip="Blockquote"
+        />
+        <FormatButton
+          onClick={() => editor.chain().focus().setHorizontalRule().run()}
+          icon={Minus}
+          tooltip="Horizontal Rule"
+        />
+        <FormatButton
+          onClick={() => editor.chain().focus().setHardBreak().run()}
+          icon={PenTool}
+          tooltip="Hard Break"
+        />
+
+        {renderDivider()}
+
         {/* Color Dropdown */}
-        <div className="group relative">
-          <FormatButton
-            icon={Palette}
-            tooltip="Text Color"
-            isActive={editor.isActive("textStyle")}
-          />
-          <div
-            className={`absolute z-10 left-0 mt-1 w-48 p-2 rounded-md shadow-lg hidden group-hover:grid grid-cols-4 gap-2 ${
-              isDark
-                ? "bg-[#001F10] border border-amber-900/50"
-                : "bg-white border border-gray-200"
-            }`}
-          >
-            {colorPresets.map((preset) => (
-              <button
-                key={preset.color}
-                className="flex h-8 justify-center rounded-full w-8 cursor-pointer hover:scale-110 items-center transition-transform"
-                style={{
-                  backgroundColor: preset.color,
-                  boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
-                }}
-                title={preset.name}
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  setTextColor(preset.color);
-                }}
-              />
-            ))}
-            <div className="col-span-4 mt-2">
-              <input
-                type="color"
-                className="h-8 rounded w-full cursor-pointer"
-                onChange={(e) => setTextColor(e.target.value)}
-                onMouseDown={(e) => e.stopPropagation()}
-              />
-            </div>
+        <div className="relative">
+          <div ref={colorButtonRef}>
+            <FormatButton
+              onClick={() => {
+                setIsColorMenuOpen(!isColorMenuOpen);
+                setIsTextMenuOpen(false);
+              }}
+              icon={Palette}
+              tooltip="Text Color"
+              isActive={editor.isActive("textStyle")}
+            />
           </div>
+          {isColorMenuOpen && (
+            <div
+              ref={colorMenuRef}
+              className={`absolute z-50 left-0 mt-1 w-48 p-2 rounded-md shadow-lg grid grid-cols-4 gap-2 ${
+                isDark
+                  ? "bg-[#001F10] border border-amber-900/50"
+                  : "bg-white border border-gray-200"
+              }`}
+            >
+              {colorPresets.map((preset) => (
+                <button
+                  key={preset.color}
+                  className="flex h-8 justify-center rounded-full w-8 cursor-pointer hover:scale-110 items-center transition-transform"
+                  style={{
+                    backgroundColor: preset.color,
+                    boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
+                  }}
+                  title={preset.name}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setTextColor(preset.color);
+                    setIsColorMenuOpen(false);
+                  }}
+                />
+              ))}
+              <div className="col-span-4 mt-2">
+                <input
+                  type="color"
+                  className="h-8 rounded w-full cursor-pointer"
+                  onChange={(e) => {
+                    setTextColor(e.target.value);
+                    setIsColorMenuOpen(false);
+                  }}
+                />
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Clear formatting button */}
+        {renderDivider()}
+
+        {/* Clear formatting buttons */}
         <FormatButton
-          onClick={() =>
-            editor.chain().focus().unsetAllMarks().clearNodes().run()
-          }
-          tooltip="Clear Formatting"
+          onClick={() => editor.chain().focus().unsetAllMarks().run()}
+          tooltip="Clear Marks"
+          icon={X}
         >
-          Clear
+        </FormatButton>
+        <FormatButton
+          onClick={() => editor.chain().focus().clearNodes().run()}
+          tooltip="Clear Nodes"
+        >
+          Clear Nodes
         </FormatButton>
       </div>
     </>
