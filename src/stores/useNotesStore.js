@@ -1,31 +1,31 @@
 /**
  * @file Notes store and hook
- * 
+ *
  * This file provides notes state management using Zustand
  * combined with React Query for efficient data fetching and caching.
- * 
+ *
  * @example
  * // Using the notes hook to display a note list and editor
  * import { useNotes } from '../stores/useNotesStore';
  * import { useState } from 'react';
- * 
+ *
  * function NotesApp() {
- *   const { 
- *     notes, 
- *     currentNote, 
- *     isLoading, 
- *     setCurrentNote, 
- *     updateNote 
+ *   const {
+ *     notes,
+ *     currentNote,
+ *     isLoading,
+ *     setCurrentNote,
+ *     updateNote
  *   } = useNotes();
  *   const [editedContent, setEditedContent] = useState('');
- *   
+ *
  *   // Set up editor when a note is selected
  *   useEffect(() => {
  *     if (currentNote) {
  *       setEditedContent(currentNote.markdown);
  *     }
  *   }, [currentNote]);
- *   
+ *
  *   const handleSave = () => {
  *     if (currentNote) {
  *       updateNote({
@@ -38,15 +38,15 @@
  *       });
  *     }
  *   };
- *   
+ *
  *   if (isLoading) return <div>Loading notes...</div>;
- *   
+ *
  *   return (
  *     <div className="notes-app">
  *       <div className="notes-list">
  *         {notes.map(note => (
- *           <div 
- *             key={note.id} 
+ *           <div
+ *             key={note.id}
  *             className={note.id === currentNote?.id ? 'selected' : ''}
  *             onClick={() => setCurrentNote(note.id)}
  *           >
@@ -54,7 +54,7 @@
  *           </div>
  *         ))}
  *       </div>
- *       
+ *
  *       {currentNote && (
  *         <div className="note-editor">
  *           <h2>{currentNote.title}</h2>
@@ -68,14 +68,14 @@
  *     </div>
  *   );
  * }
- * 
+ *
  * @example
  * // Using the notes hook with folder filtering
  * function FolderNotes({ folderId }) {
  *   const { notes, isLoading } = useNotes(folderId);
- *   
+ *
  *   if (isLoading) return <div>Loading notes...</div>;
- *   
+ *
  *   return (
  *     <div>
  *       <h3>Notes in this folder</h3>
@@ -93,15 +93,15 @@
  * }
  */
 
-import { create } from 'zustand';
-import { supabase } from '../lib/supabase';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '../stores/useAuthStore';
-import { defaultQueryConfig, sessionQueryConfig } from '../utils/queryConfig';
+import { create } from "zustand";
+import { supabase } from "../lib/supabase";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "../stores/useAuthStore";
+import { defaultQueryConfig, sessionQueryConfig } from "../lib/queryConfig";
 
 /**
  * Base Zustand store for notes UI state
- * 
+ *
  * @typedef {Object} NotesState
  * @property {string|null} currentNoteId - ID of the currently selected note
  * @property {boolean} isLoading - Loading state
@@ -117,7 +117,7 @@ export const useNotesStore = create((set) => ({
   currentNoteId: null,
   isLoading: false,
   error: null,
-  
+
   // Actions that don't need React Query
   setCurrentNoteId: (id) => set({ currentNoteId: id }),
   setLoading: (isLoading) => set({ isLoading }),
@@ -127,7 +127,7 @@ export const useNotesStore = create((set) => ({
 
 /**
  * Custom hook that combines Zustand with React Query for notes management
- * 
+ *
  * @param {string|null} folderId - Optional folder ID to filter notes
  * @param {string|null} tagId - Optional tag ID to filter notes
  * @returns {Object} Notes state and actions
@@ -146,65 +146,68 @@ export const useNotesStore = create((set) => ({
 
 // React Query + Zustand combined hook
 export function useNotes(folderId = null, tagId = null) {
-  const { 
-    currentNoteId, 
-    isLoading: storeLoading, 
-    error: storeError, 
+  const {
+    currentNoteId,
+    isLoading: storeLoading,
+    error: storeError,
     setCurrentNoteId,
-    clearCurrentNote
+    clearCurrentNote,
   } = useNotesStore();
   const queryClient = useQueryClient();
-  
+
   const { user } = useAuth();
-  
-  const { 
-    data: notes = [], 
+
+  const {
+    data: notes = [],
     isLoading: queryLoading,
     error: queryError,
   } = useQuery({
-    queryKey: ['notes', folderId, tagId],
+    queryKey: ["notes", folderId, tagId],
     queryFn: async () => {
       let query = supabase
-        .from('notes')
-        .select(`
+        .from("notes")
+        .select(
+          `
           *,
           folder:folders(id, name),
           tags:note_tags(tags(*))
-        `)
-        .order('created_at', { ascending: false });
-      
+        `
+        )
+        .order("created_at", { ascending: false });
+
       if (folderId) {
-        query = query.eq('folder_id', folderId);
+        query = query.eq("folder_id", folderId);
       }
-      
+
       const { data, error } = await query;
-      
+
       if (error) throw error;
-      
+
       if (tagId) {
-        return data.filter(note => 
-          note.tags.some(t => t.tags.id === tagId)
+        return data.filter((note) =>
+          note.tags.some((t) => t.tags.id === tagId)
         );
       }
-      
+
       return data;
     },
-    ...defaultQueryConfig()
+    ...defaultQueryConfig(),
   });
-  
-  const { 
-    data: currentNote = null, 
+
+  const {
+    data: currentNote = null,
     isLoading: currentNoteLoading,
-    error: currentNoteError 
+    error: currentNoteError,
   } = useQuery({
-    queryKey: ['note', currentNoteId],
+    queryKey: ["note", currentNoteId],
     queryFn: async () => {
       if (!currentNoteId) return null;
-      
+
       try {
         const { data, error } = await supabase
           .from("notes")
-          .select(`
+          .select(
+            `
             id,
             title,
             content,
@@ -215,7 +218,8 @@ export function useNotes(folderId = null, tagId = null) {
             user_id,
             folder:folders(id, name),
             tags:note_tags(tags(id, name, color))
-          `)
+          `
+          )
           .eq("id", currentNoteId)
           .single();
 
@@ -223,12 +227,14 @@ export function useNotes(folderId = null, tagId = null) {
 
         const { data: linksData, error: linksError } = await supabase
           .from("note_links")
-          .select(`
+          .select(
+            `
             id,
             target_note_id,
             link_type,
             target:notes!note_links_target_note_id_fkey(id, title)
-          `)
+          `
+          )
           .eq("source_note_id", currentNoteId);
 
         if (linksError) throw linksError;
@@ -244,136 +250,141 @@ export function useNotes(folderId = null, tagId = null) {
           })),
         };
       } catch (error) {
-        queryClient.removeQueries(['note', currentNoteId]);
+        queryClient.removeQueries(["note", currentNoteId]);
         throw error;
       }
     },
     enabled: !!currentNoteId,
     retry: 1,
-    ...sessionQueryConfig()
+    ...sessionQueryConfig(),
   });
-  
+
   const createNoteMutation = useMutation({
     mutationFn: async (noteData) => {
       const { data, error } = await supabase
-        .from('notes')
-        .insert([{
-          title: noteData.title,
-          content: noteData.content || {},
-          markdown: noteData.markdown || '',
-          folder_id: noteData.folder_id,
-          user_id: user.id
-        }])
+        .from("notes")
+        .insert([
+          {
+            title: noteData.title,
+            content: noteData.content || {},
+            markdown: noteData.markdown || "",
+            folder_id: noteData.folder_id,
+            user_id: user.id,
+          },
+        ])
         .select();
-      
+
       if (error) throw error;
       return data[0];
     },
     onSuccess: (newNote) => {
-      queryClient.setQueryData(['notes'], (oldData) => {
+      queryClient.setQueryData(["notes"], (oldData) => {
         return oldData ? [newNote, ...oldData] : [newNote];
       });
-      queryClient.invalidateQueries({ queryKey: ['notes'] });
-    }
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
+    },
   });
-  
+
   const updateNoteMutation = useMutation({
     mutationFn: async (noteData) => {
       const { data, error } = await supabase
-        .from('notes')
+        .from("notes")
         .update({
           title: noteData.title,
           content: noteData.content,
           markdown: noteData.markdown,
-          folder_id: noteData.folder_id
+          folder_id: noteData.folder_id,
         })
-        .eq('id', noteData.id)
+        .eq("id", noteData.id)
         .select();
-      
+
       if (error) throw error;
       return data[0];
     },
     onSuccess: (updatedNote) => {
-      queryClient.setQueryData(['notes'], (oldData) => {
-        return oldData ? oldData.map(note => 
-          note.id === updatedNote.id ? { ...note, ...updatedNote } : note
-        ) : oldData;
+      queryClient.setQueryData(["notes"], (oldData) => {
+        return oldData
+          ? oldData.map((note) =>
+              note.id === updatedNote.id ? { ...note, ...updatedNote } : note
+            )
+          : oldData;
       });
 
       if (currentNoteId === updatedNote.id) {
-        queryClient.setQueryData(['note', currentNoteId], (oldData) => {
+        queryClient.setQueryData(["note", currentNoteId], (oldData) => {
           return oldData ? { ...oldData, ...updatedNote } : oldData;
         });
       }
 
-      queryClient.invalidateQueries({ queryKey: ['notes'] });
-      queryClient.invalidateQueries({ queryKey: ['note', currentNoteId] });
-    }
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
+      queryClient.invalidateQueries({ queryKey: ["note", currentNoteId] });
+    },
   });
-  
+
   const deleteNoteMutation = useMutation({
     mutationFn: async (id) => {
-      const { error } = await supabase
-        .from('notes')
-        .delete()
-        .eq('id', id);
-      
+      const { error } = await supabase.from("notes").delete().eq("id", id);
+
       if (error) throw error;
-      
+
       if (currentNoteId === id) {
         clearCurrentNote();
       }
-      
+
       return id;
     },
     onSuccess: (deletedId) => {
-      queryClient.setQueryData(['notes'], (oldData) => {
-        return oldData ? oldData.filter(note => note.id !== deletedId) : oldData;
+      queryClient.setQueryData(["notes"], (oldData) => {
+        return oldData
+          ? oldData.filter((note) => note.id !== deletedId)
+          : oldData;
       });
-      
-      queryClient.invalidateQueries({ queryKey: ['notes'] });
-      
+
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
+
       if (currentNoteId === deletedId) {
-        queryClient.removeQueries({ queryKey: ['note', deletedId] });
+        queryClient.removeQueries({ queryKey: ["note", deletedId] });
       }
-    }
+    },
   });
-  
+
   const addTagMutation = useMutation({
     mutationFn: async ({ noteId, tagId }) => {
       const { data, error } = await supabase
-        .from('note_tags')
-        .insert([{
-          note_id: noteId,
-          tag_id: tagId
-        }])
+        .from("note_tags")
+        .insert([
+          {
+            note_id: noteId,
+            tag_id: tagId,
+          },
+        ])
         .select();
-      
+
       if (error) throw error;
       return data[0];
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notes'] });
-      queryClient.invalidateQueries({ queryKey: ['note', currentNoteId] });
-    }
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
+      queryClient.invalidateQueries({ queryKey: ["note", currentNoteId] });
+    },
   });
-  
+
   const removeTagMutation = useMutation({
     mutationFn: async ({ noteId, tagId }) => {
       const { error } = await supabase
-        .from('note_tags')
+        .from("note_tags")
         .delete()
         .match({ note_id: noteId, tag_id: tagId });
-      
+
       if (error) throw error;
       return { noteId, tagId };
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notes'] });
-      queryClient.invalidateQueries({ queryKey: ['note', currentNoteId] });
-    }
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
+      queryClient.invalidateQueries({ queryKey: ["note", currentNoteId] });
+    },
   });
-  
+
   return {
     notes,
     currentNote,
@@ -386,7 +397,9 @@ export function useNotes(folderId = null, tagId = null) {
     deleteNote: deleteNoteMutation.mutate,
     addTag: addTagMutation.mutate,
     removeTag: removeTagMutation.mutate,
-    refreshNotes: () => queryClient.invalidateQueries({ queryKey: ['notes'] }),
-    refreshCurrentNote: () => currentNoteId && queryClient.invalidateQueries({ queryKey: ['note', currentNoteId] }),
+    refreshNotes: () => queryClient.invalidateQueries({ queryKey: ["notes"] }),
+    refreshCurrentNote: () =>
+      currentNoteId &&
+      queryClient.invalidateQueries({ queryKey: ["note", currentNoteId] }),
   };
-} 
+}

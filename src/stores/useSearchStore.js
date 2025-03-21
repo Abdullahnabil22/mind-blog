@@ -1,45 +1,45 @@
 /**
  * @file Search store and hook
- * 
+ *
  * This file provides search state management using Zustand
  * combined with React Query for efficient data fetching and filtering.
- * 
+ *
  * @example
  * // Using the search hook in a search component
  * import { useSearch } from '../stores/useSearchStore';
  * import { useTags } from '../stores/useTagsStore';
  * import { useFolders } from '../stores/useFoldersStore';
- * 
+ *
  * function SearchComponent() {
- *   const { 
- *     searchQuery, 
- *     setSearchQuery, 
- *     filters, 
+ *   const {
+ *     searchQuery,
+ *     setSearchQuery,
+ *     filters,
  *     setFilters,
- *     results, 
- *     isLoading, 
+ *     results,
+ *     isLoading,
  *     search,
  *     clearSearch
  *   } = useSearch();
  *   const { tags } = useTags();
  *   const { folders } = useFolders();
- *   
+ *
  *   const handleSearch = (e) => {
  *     e.preventDefault();
  *     search();
  *   };
- *   
+ *
  *   const handleTagFilter = (tagId) => {
  *     const newTagFilters = filters.tags.includes(tagId)
  *       ? filters.tags.filter(id => id !== tagId)
  *       : [...filters.tags, tagId];
- *       
+ *
  *     setFilters({
  *       ...filters,
  *       tags: newTagFilters
  *     });
  *   };
- *   
+ *
  *   return (
  *     <div>
  *       <form onSubmit={handleSearch}>
@@ -52,7 +52,7 @@
  *         <button type="submit">Search</button>
  *         <button type="button" onClick={clearSearch}>Clear</button>
  *       </form>
- *       
+ *
  *       <div className="filters">
  *         <h4>Filter by tags:</h4>
  *         <div className="tag-filters">
@@ -71,7 +71,7 @@
  *           ))}
  *         </div>
  *       </div>
- *       
+ *
  *       {isLoading ? (
  *         <div>Searching...</div>
  *       ) : (
@@ -90,14 +90,14 @@
  * }
  */
 
-import { create } from 'zustand';
-import { supabase } from '../lib/supabase';
-import { useQuery } from '@tanstack/react-query';
-import { sessionQueryConfig } from '../utils/queryConfig';
+import { create } from "zustand";
+import { supabase } from "../lib/supabase";
+import { useQuery } from "@tanstack/react-query";
+import { sessionQueryConfig } from "../lib/queryConfig";
 
 /**
  * Base Zustand store for search state
- * 
+ *
  * @typedef {Object} SearchState
  * @property {string} searchQuery - Current search text
  * @property {Object} filters - Applied search filters
@@ -112,18 +112,18 @@ import { sessionQueryConfig } from '../utils/queryConfig';
 
 // Base Zustand store for search state
 export const useSearchStore = create((set, get) => ({
-  searchQuery: '',
+  searchQuery: "",
   filters: {
     folders: [],
     tags: [],
-    dateRange: null
+    dateRange: null,
   },
-  
+
   // Actions
   setSearchQuery: (query) => set({ searchQuery: query }),
-  
+
   setFilters: (filters) => set({ filters }),
-  
+
   hasActiveFilters: () => {
     const { filters } = get();
     return (
@@ -132,20 +132,21 @@ export const useSearchStore = create((set, get) => ({
       (filters.dateRange && (filters.dateRange.from || filters.dateRange.to))
     );
   },
-  
-  clearSearch: () => set({ 
-    searchQuery: '', 
-    filters: {
-      folders: [],
-      tags: [],
-      dateRange: null
-    }
-  })
+
+  clearSearch: () =>
+    set({
+      searchQuery: "",
+      filters: {
+        folders: [],
+        tags: [],
+        dateRange: null,
+      },
+    }),
 }));
 
 /**
  * Custom hook that combines Zustand with React Query for search functionality
- * 
+ *
  * @returns {Object} Search state and actions
  * @property {string} searchQuery - Current search text
  * @property {Object} filters - Applied search filters
@@ -161,82 +162,82 @@ export const useSearchStore = create((set, get) => ({
 
 // React Query + Zustand combined hook
 export function useSearch() {
-  const { 
-    searchQuery, 
-    filters, 
-    hasActiveFilters, 
-    setSearchQuery, 
-    setFilters, 
-    clearSearch 
+  const {
+    searchQuery,
+    filters,
+    hasActiveFilters,
+    setSearchQuery,
+    setFilters,
+    clearSearch,
   } = useSearchStore();
-  
+
   // Search with React Query
-  const { 
-    data: results = [], 
+  const {
+    data: results = [],
     isLoading,
     error,
-    refetch
+    refetch,
   } = useQuery({
-    queryKey: ['search', searchQuery, filters],
+    queryKey: ["search", searchQuery, filters],
     queryFn: async () => {
       if (!searchQuery && !hasActiveFilters()) {
         return [];
       }
-      
-      let query = supabase
-        .from('notes')
-        .select(`
+
+      let query = supabase.from("notes").select(`
           *,
           folder:folders(id, name),
           tags:note_tags(tags(*))
         `);
-      
+
       // Text search
       if (searchQuery) {
-        query = query.or(`title.ilike.%${searchQuery}%, markdown.ilike.%${searchQuery}%`);
+        query = query.or(
+          `title.ilike.%${searchQuery}%, markdown.ilike.%${searchQuery}%`
+        );
       }
-      
+
       // Filter by folders
       if (filters.folders?.length > 0) {
-        query = query.in('folder_id', filters.folders);
+        query = query.in("folder_id", filters.folders);
       }
-      
+
       // Filter by date range
       if (filters.dateRange?.from) {
-        query = query.gte('created_at', filters.dateRange.from);
+        query = query.gte("created_at", filters.dateRange.from);
       }
       if (filters.dateRange?.to) {
-        query = query.lte('created_at', filters.dateRange.to);
+        query = query.lte("created_at", filters.dateRange.to);
       }
-      
+
       // Get the results
       let { data, error } = await query;
-      
+
       if (error) throw error;
-      
+
       // Handle tag filtering client-side (due to RLS limitations)
       if (filters.tags?.length > 0) {
-        data = data.filter(note => {
-          const noteTags = note.tags.map(t => t.tags.id);
-          return filters.tags.some(tagId => noteTags.includes(tagId));
+        data = data.filter((note) => {
+          const noteTags = note.tags.map((t) => t.tags.id);
+          return filters.tags.some((tagId) => noteTags.includes(tagId));
         });
       }
-      
+
       // Format the result
-      return data.map(note => ({
+      return data.map((note) => ({
         ...note,
         folder: note.folder,
-        tags: note.tags.map(t => t.tags)
+        tags: note.tags.map((t) => t.tags),
       }));
     },
-    enabled: searchQuery !== '' || hasActiveFilters(),
-    ...sessionQueryConfig()
+    enabled: searchQuery !== "" || hasActiveFilters(),
+    ...sessionQueryConfig(),
   });
-  
+
   const search = () => {
     refetch();
   };
-  
+
   return {
     searchQuery,
     filters,
@@ -249,4 +250,4 @@ export function useSearch() {
     hasActiveFilters,
     clearSearch,
   };
-} 
+}

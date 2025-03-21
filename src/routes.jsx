@@ -1,6 +1,6 @@
 import { lazy } from "react";
-import { LazyComponent } from "./lib/lazyComponent";
-import { ProtectedRoute } from "./hooks/protectedRoutes";
+import { LazyComponent } from "./utils/lazyComponent";
+import { ProtectedRoute } from "./utils/protectedRoutes";
 
 const Layout = lazy(() =>
   import("./components/Layout/layout").then((module) => ({

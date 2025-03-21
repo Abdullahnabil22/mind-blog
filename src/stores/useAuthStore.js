@@ -66,7 +66,7 @@ import { create } from "zustand";
 import { supabase } from "../lib/supabase";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { sessionQueryConfig } from "../utils/queryConfig";
+import { sessionQueryConfig } from "../lib/queryConfig";
 
 /**
  * Base Zustand store for authentication state
@@ -158,23 +158,20 @@ export const useAuthStore = create((set, get) => ({
     set({ isLoading: true, error: null });
 
     try {
-      const {
-        error,
-      } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: { username },
-          emailRedirectTo: window.location.origin + '/',
+          emailRedirectTo: window.location.origin + "/",
         },
       });
 
       if (error) throw error;
-      
+
       set({ isLoading: false });
-      
-      window.location.href = '/verify-email';
-      
+
+      window.location.href = "/verify-email";
     } catch (error) {
       set({ error, isLoading: false });
       throw error;
@@ -295,7 +292,7 @@ export function useAuth() {
       }
     },
     enabled: !!user,
-    ...sessionQueryConfig()
+    ...sessionQueryConfig(),
   });
 
   // Initialize auth on component mount
@@ -309,17 +306,17 @@ export function useAuth() {
       // Only invalidate if the user ID actually changed
       const currentUserId = user?.id;
       const newUserId = session?.user?.id;
-      
+
       if (event === "SIGNED_IN" && currentUserId !== newUserId) {
-        queryClient.invalidateQueries({ 
+        queryClient.invalidateQueries({
           queryKey: ["profile", newUserId],
-          exact: true // Only invalidate exact query key match
+          exact: true, // Only invalidate exact query key match
         });
       }
       if (event === "SIGNED_OUT") {
-        queryClient.removeQueries({ 
+        queryClient.removeQueries({
           queryKey: ["profile"],
-          exact: false // Remove all profile queries
+          exact: false, // Remove all profile queries
         });
       }
     });
@@ -344,9 +341,9 @@ export function useAuth() {
     gitHub,
     isAuthenticated: isAuthenticated(),
     refreshProfile: () =>
-      queryClient.invalidateQueries({ 
+      queryClient.invalidateQueries({
         queryKey: ["profile", user?.id],
-        exact: true // Only invalidate exact query key match
+        exact: true, // Only invalidate exact query key match
       }),
   };
 }
