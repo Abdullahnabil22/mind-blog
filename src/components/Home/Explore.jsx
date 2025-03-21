@@ -5,11 +5,9 @@ import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 
 export function Explore() {
-  const { theme } = useTheme();
-  const isDark = theme !== "light";
+  const { isDark } = useTheme();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: false, margin: "-100px" });
-
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -36,13 +34,13 @@ export function Explore() {
     <>
       <section ref={ref} className="container mx-auto px-8 py-4">
         <div className="grid gap-8 items-center md:grid-cols-2">
-          <motion.div 
+          <motion.div
             className="order-2 md:order-1"
             variants={containerVariants}
             initial="hidden"
             animate={isInView ? "visible" : "hidden"}
           >
-            <motion.h1 
+            <motion.h1
               variants={itemVariants}
               className="text-4xl font-bold lg:text-6xl mb-4 md:text-5xl tracking-tight"
             >
@@ -50,7 +48,9 @@ export function Explore() {
             </motion.h1>
             <motion.p
               variants={itemVariants}
-              className={`mb-6 text-lg md:pr-12 ${isDark ? "text-amber-50" : "text-gray-700"}`}
+              className={`mb-6 text-lg md:pr-12 ${
+                isDark ? "text-amber-50" : "text-gray-700"
+              }`}
             >
               Mind blog helps you organize your thoughts, ideas, and knowledge
               in a beautiful, interconnected workspace that grows with your
@@ -63,7 +63,7 @@ export function Explore() {
             </motion.div>
           </motion.div>
 
-          <motion.div 
+          <motion.div
             className="order-1 h-[500px] w-full md:order-2"
             initial={{ opacity: 0, x: 20 }}
             animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 20 }}

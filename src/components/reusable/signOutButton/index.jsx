@@ -1,4 +1,3 @@
-import { useSettingsStore } from "../../../stores";
 import { useAuth } from "../../../stores/useAuthStore";
 import { Button } from "../../ui/button";
 import { BiLogOut } from "react-icons/bi";
@@ -8,10 +7,11 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../../ui/tooltip";
+import { useTheme } from "../../../hooks/useTheme";
 
 export function SignOut({ iconVersion = false }) {
   const { signOut } = useAuth();
-  const { theme } = useSettingsStore();
+  const { isDark } = useTheme();
 
   const handleSignOut = async () => {
     try {
@@ -29,7 +29,7 @@ export function SignOut({ iconVersion = false }) {
             <TooltipTrigger asChild>
               <button
                 className={`cursor-pointer rounded-full p-1.5 transition-all transform  focus:outline-none focus:ring-2 focus:ring-opacity-50 ${
-                  theme === "light"
+                  !isDark
                     ? "bg-gray-100 hover:bg-gray-200 text-gray-700 focus:ring-gray-400"
                     : "bg-amber-100 hover:bg-[#000E07] text-[#000E07] hover:text-amber-100 focus:ring-gray-600"
                 }`}

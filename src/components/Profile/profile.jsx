@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { Activity } from "./activity";
 import { Avatar } from "../reusable/avatar";
 import { ProfileInfo } from "./profileInfo";
+import { MainFooter } from "../Home/Footer";
 
 export function Profile() {
   const { profile } = useAuth();
@@ -87,16 +88,7 @@ export function Profile() {
             </Tabs>
           </section>
 
-          <footer className="flex justify-center border-t pt-6">
-            <p
-              className={`text-sm ${
-                theme === "dark" ? "text-amber-100" : "text-gray-500"
-              }`}
-            >
-              Mind <span className="text-green-500 font-bold">Blog</span> - Your
-              personal knowledge workspace
-            </p>
-          </footer>
+          <MainFooter />
         </main>
       </motion.div>
     </div>

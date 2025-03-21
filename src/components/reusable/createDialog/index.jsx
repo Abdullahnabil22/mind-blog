@@ -18,8 +18,7 @@ export function CreateDialog({
   handleCreateContent,
   title,
 }) {
-  const { theme } = useTheme();
-  const isDark = theme !== "light";
+  const { isDark } = useTheme();
 
   return (
     <>

@@ -9,10 +9,10 @@ import {
   FiLink,
 } from "react-icons/fi";
 import { useState, useEffect, memo } from "react";
-import { useSettingsStore } from "../../stores";
+import { useTheme } from "../../hooks/useTheme";
 
 const Loading = memo(function () {
-  const { theme } = useSettingsStore();
+  const { isDark } = useTheme();
   const [activeIcon, setActiveIcon] = useState(0);
   const icons = [
     { icon: FiBook, label: "Knowledge Base" },
@@ -34,7 +34,7 @@ const Loading = memo(function () {
   return (
     <div
       className={`flex flex-col items-center justify-center min-h-screen ${
-        theme === "light" ? "bg-gray-50" : "bg-[#00170C]"
+        !isDark ? "bg-gray-50" : "bg-[#00170C]"
       }`}
     >
       <div className="text-center">
@@ -63,7 +63,7 @@ const Loading = memo(function () {
                 >
                   <Icon
                     className={`${
-                      theme === "light" ? "text-green-500" : "text-amber-100"
+                      !isDark ? "text-green-500" : "text-amber-100"
                     }`}
                     size={64}
                   />
@@ -75,7 +75,7 @@ const Loading = memo(function () {
 
         <motion.h2
           className={`text-xl font-semibold mb-2 ${
-            theme === "light" ? "text-gray-800" : "text-amber-100"
+            !isDark ? "text-gray-800" : "text-amber-100"
           }`}
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -86,7 +86,7 @@ const Loading = memo(function () {
 
         <motion.p
           className={`max-w-md mx-auto ${
-            theme === "light" ? "text-gray-600" : "text-amber-50"
+            !isDark ? "text-gray-600" : "text-amber-50"
           }`}
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -105,7 +105,7 @@ const Loading = memo(function () {
             <motion.div
               key={dot}
               className={`w-3 h-3 rounded-full ${
-                theme === "light" ? "bg-green-500" : "bg-amber-100"
+                !isDark ? "bg-green-500" : "bg-amber-100"
               }`}
               animate={{
                 scale: [1, 1.5, 1],

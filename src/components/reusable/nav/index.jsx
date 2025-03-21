@@ -3,14 +3,14 @@ import { HiMenuAlt3, HiX } from "react-icons/hi";
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
-import { useSettingsStore } from "../../../stores";
 import { ThemeToggler } from "../theme";
 import { SignOut } from "../signOutButton";
 import { useAuth } from "../../../stores/useAuthStore";
 import { Link, NavLink } from "react-router";
+import { useTheme } from "../../../hooks/useTheme";
 
 export function NavBar() {
-  const { theme } = useSettingsStore();
+  const { isDark } = useTheme();
   const { profile, isAuthenticated, user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -56,7 +56,7 @@ export function NavBar() {
               <NavLink
                 className={({ isActive }) =>
                   `${
-                    theme === "light"
+                    !isDark
                       ? "text-black bg-transparent hover:bg-black hover:text-white "
                       : " text-amber-100 bg-transparent hover:bg-amber-100 hover:text-[#00170C] "
                   } ${
@@ -70,7 +70,7 @@ export function NavBar() {
               <NavLink
                 className={({ isActive }) =>
                   `${
-                    theme === "light"
+                    !isDark
                       ? "text-black bg-transparent hover:bg-black hover:text-white "
                       : " text-amber-100 bg-transparent hover:bg-amber-100 hover:text-[#00170C] "
                   } ${
@@ -84,7 +84,7 @@ export function NavBar() {
               <NavLink
                 className={({ isActive }) =>
                   `${
-                    theme === "light"
+                    !isDark
                       ? "text-black bg-transparent hover:bg-black hover:text-white "
                       : " text-amber-100 bg-transparent hover:bg-amber-100 hover:text-[#00170C] "
                   } ${
@@ -121,13 +121,13 @@ export function NavBar() {
               <motion.button
                 onClick={toggleMenu}
                 className={`focus:outline-none p-2 rounded-full cursor-pointer  ${
-                  theme === "light" ? "hover:bg-gray-100" : "hover:bg-gray-800"
+                  !isDark ? "hover:bg-gray-100" : "hover:bg-gray-800"
                 }`}
                 whileTap={{ scale: 0.9 }}
               >
                 <HiMenuAlt3
                   className={`w-6 h-6 ${
-                    theme === "light" ? "text-black" : "text-amber-100"
+                    !isDark ? "text-black" : "text-amber-100"
                   } z-50`}
                 />
               </motion.button>
@@ -153,7 +153,7 @@ export function NavBar() {
               exit={{ x: "100%" }}
               transition={{ type: "tween", ease: "easeOut", duration: 0.3 }}
               className={`fixed top-0 right-0 h-full w-3/4 max-w-xs ${
-                theme === "light" ? "bg-white" : "bg-[#001A0E]"
+                !isDark ? "bg-white" : "bg-[#001A0E]"
               } shadow-xl z-50`}
               onClick={(e) => e.stopPropagation()}
             >
@@ -161,9 +161,9 @@ export function NavBar() {
                 {/* User profile section at top */}
                 <div
                   className={`p-6 ${
-                    theme === "light" ? "bg-gray-50" : "bg-[#002813]"
+                    !isDark ? "bg-gray-50" : "bg-[#002813]"
                   } border-b ${
-                    theme === "light" ? "border-gray-200" : "border-gray-800"
+                    !isDark ? "border-gray-200" : "border-gray-800"
                   }`}
                 >
                   <div className="flex items-center space-x-3">
@@ -181,7 +181,7 @@ export function NavBar() {
                     <div>
                       <p
                         className={`font-bold ${
-                          theme === "light" ? "text-gray-800" : "text-amber-100"
+                          !isDark ? "text-gray-800" : "text-amber-100"
                         }`}
                       >
                         {profile?.display_name}
@@ -193,15 +193,13 @@ export function NavBar() {
                     <motion.button
                       onClick={toggleMenu}
                       className={`focus:outline-none p-2 ms-6 self-end rounded-full cursor-pointer  ${
-                        theme === "light"
-                          ? "hover:bg-gray-100"
-                          : "hover:bg-gray-800"
+                        !isDark ? "hover:bg-gray-100" : "hover:bg-gray-800"
                       }`}
                       whileTap={{ scale: 0.9 }}
                     >
                       <HiX
                         className={`w-6 h-6 ${
-                          theme === "light" ? "text-black" : "text-amber-100"
+                          !isDark ? "text-black" : "text-amber-100"
                         } z-50`}
                       />
                     </motion.button>
@@ -219,7 +217,7 @@ export function NavBar() {
                     <NavLink
                       className={({ isActive }) =>
                         `block w-full px-4 py-3 rounded-lg transition-all duration-200 ${
-                          theme === "light"
+                          !isDark
                             ? isActive
                               ? "bg-green-100 text-green-700 font-bold"
                               : "hover:bg-gray-100 text-gray-800"
@@ -238,7 +236,7 @@ export function NavBar() {
                     <NavLink
                       className={({ isActive }) =>
                         `block w-full px-4 py-3 rounded-lg transition-all duration-200 mb-2 ${
-                          theme === "light"
+                          !isDark
                             ? isActive
                               ? "bg-green-100 text-green-700 font-bold"
                               : "hover:bg-gray-100 text-gray-800"
@@ -258,7 +256,7 @@ export function NavBar() {
                     <NavLink
                       className={({ isActive }) =>
                         `block w-full px-4 py-3 rounded-lg transition-all duration-200 ${
-                          theme === "light"
+                          !isDark
                             ? isActive
                               ? "bg-green-100 text-green-700 font-bold"
                               : "hover:bg-gray-100 text-gray-800"
@@ -279,24 +277,20 @@ export function NavBar() {
                   <motion.div variants={itemVariants}>
                     <p
                       className={`px-4 text-xs uppercase font-semibold mb-2 ${
-                        theme === "light" ? "text-gray-500" : "text-gray-400"
+                        !isDark ? "text-gray-500" : "text-gray-400"
                       }`}
                     >
                       Settings
                     </p>
                     <div
                       className={`p-4 rounded-lg ${
-                        theme === "light"
-                          ? "bg-gray-50"
-                          : "bg-gray-900 bg-opacity-40"
+                        !isDark ? "bg-gray-50" : "bg-gray-900 bg-opacity-40"
                       }`}
                     >
                       <div className="flex items-center justify-between mb-2">
                         <span
                           className={`${
-                            theme === "light"
-                              ? "text-gray-700"
-                              : "text-amber-100"
+                            !isDark ? "text-gray-700" : "text-amber-100"
                           }`}
                         >
                           Theme
@@ -311,7 +305,7 @@ export function NavBar() {
                 <motion.div
                   variants={itemVariants}
                   className={`p-4 border-t ${
-                    theme === "light" ? "border-gray-200" : "border-gray-800"
+                    !isDark ? "border-gray-200" : "border-gray-800"
                   }`}
                 >
                   <div className="px-2">

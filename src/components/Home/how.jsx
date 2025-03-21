@@ -1,53 +1,71 @@
 import { useTheme } from "../../hooks/useTheme";
+// eslint-disable-next-line no-unused-vars
+import { motion } from "framer-motion";
 
 export default function HowItWorksSection() {
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
-
+  const { isDark } = useTheme();
 
   return (
-    <section className=" py-16">
+    <motion.section
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="py-16"
+    >
       <div className="container mx-auto px-4">
-        <div className="text-center max-w-2xl mb-12 mx-auto">
-          <h2 className="text-3xl  font-bold mb-4 md:text-4xl tracking-tight">
-            How Mind blog works
+        <motion.div
+          initial={{ y: 50, opacity: 0 }}
+          whileInView={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="text-center max-w-6xl mb-12 mx-auto"
+        >
+          <h2 className="text-3xl font-bold mb-4 md:text-4xl tracking-tight">
+            Start with a single note
           </h2>
           <p
-            className={` text-lg ${isDark ? "text-amber-50" : "text-gray-600"}`}
+            className={`text-lg ${isDark ? "text-amber-50" : "text-gray-600"}`}
           >
-            A simple process to organize your thoughts and ideas
+            Your second brain begins with a single thought. From there, watch as
+            your knowledge network grows organically.
           </p>
-        </div>
+        </motion.div>
 
-        <div
-          className={`mx-auto mt-16 max-w-4xl rounded-xl p-8 shadow-sm ${
-            isDark
-              ? "bg-gradient-to-br from-gray-800 to-gray-900"
-              : "bg-gradient-to-br from-blue-50 to-green-50"
+        <motion.div
+          initial={{ scale: 0.95, opacity: 0 }}
+          whileInView={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.7, delay: 0.4 }}
+          className={`rounded-xl overflow-hidden shadow-2xl border mx-4 ${
+            isDark ? "border-gray-700 bg-gray-800" : "border-gray-200 bg-white"
           }`}
         >
-          <div className="flex flex-col gap-8 items-center md:flex-row">
-            <div className="flex-1">
-              <h3
-                className={` text-2xl font-medium mb-2 ${
-                  isDark ? "text-amber-50" : "text-gray-600"
-                }`}
-              >
-                Start with a single note
-              </h3>
-              <p
-                className={`  mb-6 ${
-                  isDark ? "text-amber-50" : "text-gray-600"
-                }`}
-              >
-                Your second brain begins with a single thought. From there,
-                watch as your knowledge network grows organically.
-              </p>
-              <div className="bg-green-500 h-1.5 rounded w-32"></div>
-            </div>
+          <div
+            className={`h-8 border-b flex items-center px-4 ${
+              isDark
+                ? "bg-gray-800 border-gray-700"
+                : "bg-gray-50 border-gray-200"
+            }`}
+          >
+            <motion.div
+              initial={{ x: -20, opacity: 0 }}
+              whileInView={{ x: 0, opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.6 }}
+              className="flex space-x-2"
+            >
+              <div className="w-3 h-3 rounded-full bg-red-500"></div>
+              <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+              <div className="w-3 h-3 rounded-full bg-green-500"></div>
+            </motion.div>
           </div>
-        </div>
+          <motion.img
+            initial={{ y: 20, opacity: 0 }}
+            whileInView={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.8 }}
+            src={isDark ? "MindDark.png" : "MindBlog.png"}
+            alt="Mind Blog workspace interface showing document editor"
+            className="w-full h-auto"
+          />
+        </motion.div>
       </div>
-    </section>
+    </motion.section>
   );
 }

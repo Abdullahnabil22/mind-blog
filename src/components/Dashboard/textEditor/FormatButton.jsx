@@ -2,7 +2,7 @@ import { useTheme } from "../../../hooks/useTheme";
 import { forwardRef } from "react";
 
 export const FormatButton = forwardRef(function FormatButton(props, ref) {
-  const { theme } = useTheme();
+  const { isDark } = useTheme();
 
   const {
     onClick,
@@ -14,8 +14,6 @@ export const FormatButton = forwardRef(function FormatButton(props, ref) {
     size = 18,
     ...otherProps
   } = props;
-
-  const isDark = theme !== "light";
 
   const handleClick = (e) => {
     e.preventDefault();

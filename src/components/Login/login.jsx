@@ -14,12 +14,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import toast from "react-hot-toast";
 import { SignInForm } from "../reusable/signInForm";
 import { SignUpForm } from "../reusable/signUpForm";
-import { useSettingsStore } from "../../stores";
+import { useTheme } from "../../hooks/useTheme";
 
 export default function Login() {
   const navigate = useNavigate();
   const { google, gitHub } = useAuth();
-  const { theme } = useSettingsStore();
+  const { isDark } = useTheme();
   const [activeTab, setActiveTab] = useState("login");
 
   const handleGithub = async () => {
@@ -43,7 +43,7 @@ export default function Login() {
   return (
     <div
       className={`flex items-center justify-center min-h-screen p-4 z-50 -mt-15 ${
-        theme === "light"
+        !isDark
           ? "bg-gradient-to-br from-green-50 to-green-200"
           : "bg-gradient-to-br from-gray-900 to-green-900"
       }`}
@@ -51,7 +51,7 @@ export default function Login() {
       <div className="w-full max-w-md">
         <Card
           className={`border-none shadow-xl ${
-            theme === "dark" ? "bg-gray-800 text-gray-100 mt-16 md:mt-0" : ""
+            isDark ? "bg-gray-800 text-gray-100 mt-16 md:mt-0" : ""
           }`}
         >
           <CardHeader className="space-y-1">
@@ -59,9 +59,7 @@ export default function Login() {
               Welcome To Mind <strong className="text-green-400">Blog</strong>
             </CardTitle>
             <CardDescription
-              className={`text-center ${
-                theme === "dark" ? "text-gray-300" : ""
-              }`}
+              className={`text-center ${isDark ? "text-gray-300" : ""}`}
             >
               Sign in to your account or create a new one
             </CardDescription>
@@ -72,17 +70,17 @@ export default function Login() {
               defaultValue="login"
               value={activeTab}
               onValueChange={setActiveTab}
-              className={theme === "dark" ? "dark-tabs" : ""}
+              className={isDark ? "dark-tabs" : ""}
             >
               <TabsList
                 className={`grid w-full grid-cols-2 mb-6 ${
-                  theme === "dark" ? "bg-gray-700" : ""
+                  isDark ? "bg-gray-700" : ""
                 }`}
               >
                 <TabsTrigger
                   value="login"
                   className={
-                    theme === "dark"
+                    isDark
                       ? "data-[state=active]:bg-gray-800 data-[state=active]:text-white"
                       : ""
                   }
@@ -92,7 +90,7 @@ export default function Login() {
                 <TabsTrigger
                   value="signup"
                   className={
-                    theme === "dark"
+                    isDark
                       ? "data-[state=active]:bg-gray-800 data-[state=active]:text-white"
                       : ""
                   }
@@ -119,7 +117,7 @@ export default function Login() {
               <div className="relative flex justify-center text-xs uppercase">
                 <span
                   className={`px-2 ${
-                    theme === "dark"
+                    isDark
                       ? "bg-gray-800 text-gray-400"
                       : "bg-white text-gray-500"
                   }`}
@@ -133,7 +131,7 @@ export default function Login() {
               <Button
                 variant="outline"
                 className={`flex items-center justify-center gap-2 cursor-pointer ${
-                  theme === "dark"
+                  isDark
                     ? "bg-gray-700 text-gray-200 hover:bg-gray-600 border-gray-600 hover:text-green-500"
                     : ""
                 }`}
@@ -154,7 +152,7 @@ export default function Login() {
               <Button
                 variant="outline"
                 className={`flex items-center justify-center gap-2 cursor-pointer ${
-                  theme === "dark"
+                  isDark
                     ? "bg-gray-700 text-gray-200 hover:bg-gray-600 border-gray-600 hover:text-green-500"
                     : ""
                 }`}

@@ -5,8 +5,7 @@ import { useTheme } from "../../../hooks/useTheme";
 
 export function NotePathBreadcrumb() {
   const { id } = useParams();
-  const { theme } = useTheme();
-  const isDark = theme !== "light";
+  const { isDark } = useTheme();
   // We're only reading from the store, not setting anything
   const { currentNote, isLoading } = useNotes();
 

@@ -10,8 +10,7 @@ export function DebugPanel({
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const { theme } = useTheme();
-  const isDark = theme !== "light";
+  const { isDark } = useTheme();
   return (
     <div className="fixed bottom-4 right-4 z-50">
       <button

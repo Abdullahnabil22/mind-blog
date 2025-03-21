@@ -5,11 +5,10 @@ import { CreateFolderDialog } from "./folderDialog";
 import { useState } from "react";
 
 export const FoldersHeader = () => {
-  const { theme } = useTheme();
-  const isDark = theme !== "light";
+  const { isDark } = useTheme();
   const [isCreateFolderOpen, setIsCreateFolderOpen] = useState(false);
 
-  return (  
+  return (
     <>
       <Button
         variant="ghost"

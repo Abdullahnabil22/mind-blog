@@ -42,9 +42,8 @@ const items = [
 
 export function AppSidebar({ ...props }) {
   const { state } = useSidebar();
-  const { theme, toggleTheme } = useTheme();
+  const { isDark, toggleTheme } = useTheme();
   const { profile } = useAuth();
-  const isDark = theme !== "light";
 
   return (
     <Sidebar

@@ -17,8 +17,7 @@ export const ConfirmationDialog = ({
   cancelText = "Cancel",
   onConfirm,
 }) => {
-  const { theme } = useTheme();
-  const isDark = theme !== "light";
+  const { isDark } = useTheme();
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>

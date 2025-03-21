@@ -10,8 +10,7 @@ import { useNavigate } from "react-router";
 
 // Component to render a single note
 export const NoteItem = ({ note, level = 0 }) => {
-  const { theme } = useTheme();
-  const isDark = theme !== "light";
+  const { isDark } = useTheme();
   const paddingLeft = `${level * 12 + 8}px`;
   const [showOptions, setShowOptions] = useState(false);
   const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false);

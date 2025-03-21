@@ -22,8 +22,7 @@ export const RenameDialog = ({
   saveButtonText = "Save",
   cancelButtonText = "Cancel",
 }) => {
-  const { theme } = useTheme();
-  const isDark = theme !== "light";
+  const { isDark } = useTheme();
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>

@@ -13,8 +13,7 @@ import Link from "@tiptap/extension-link";
 import toast from "react-hot-toast";
 
 export function useTextEditor() {
-  const { theme } = useTheme();
-  const isDark = theme !== "light";
+  const { isDark } = useTheme();
   const { id } = useParams();
   const [editorContent, setEditorContent] = useState("");
   const [hasChanges, setHasChanges] = useState(false);
@@ -61,45 +60,48 @@ export function useTextEditor() {
           keepMarks: true,
           keepAttributes: true,
           HTMLAttributes: {
-            class: 'bullet-list',
+            class: "bullet-list",
           },
         },
         orderedList: {
           keepMarks: true,
           keepAttributes: true,
           HTMLAttributes: {
-            class: 'ordered-list',
+            class: "ordered-list",
           },
         },
         listItem: {
           HTMLAttributes: {
-            class: 'list-item',
+            class: "list-item",
           },
         },
         code: {
           HTMLAttributes: {
-            class: 'bg-gray-100 dark:bg-amber-900/30 px-1.5 py-0.5 rounded font-mono text-sm',
+            class:
+              "bg-gray-100 dark:bg-amber-900/30 px-1.5 py-0.5 rounded font-mono text-sm",
           },
         },
         codeBlock: {
           HTMLAttributes: {
-            class: 'bg-gray-100 dark:bg-amber-900/20 rounded p-4 my-4 font-mono text-sm overflow-x-auto',
+            class:
+              "bg-gray-100 dark:bg-amber-900/20 rounded p-4 my-4 font-mono text-sm overflow-x-auto",
           },
         },
         blockquote: {
           HTMLAttributes: {
-            class: 'border-l-4 border-gray-300 dark:border-amber-700 pl-4 my-4 italic',
+            class:
+              "border-l-4 border-gray-300 dark:border-amber-700 pl-4 my-4 italic",
           },
         },
       }),
       TextStyle.configure({ types: [ListItem.name] }),
       Color.configure({ types: [TextStyle.name, ListItem.name] }),
       TextAlign.configure({
-        types: ['heading', 'paragraph'],
+        types: ["heading", "paragraph"],
       }),
       ListItem.configure({
         HTMLAttributes: {
-          class: 'list-item',
+          class: "list-item",
         },
       }),
       Placeholder.configure({
@@ -109,7 +111,7 @@ export function useTextEditor() {
       Link.configure({
         openOnClick: true,
         HTMLAttributes: {
-          class: 'text-blue-500 dark:text-amber-400 underline cursor-pointer',
+          class: "text-blue-500 dark:text-amber-400 underline cursor-pointer",
         },
       }),
     ],
@@ -133,7 +135,7 @@ export function useTextEditor() {
     if (!editor) return;
 
     // Handle blur events
-    editor.on('blur', () => {
+    editor.on("blur", () => {
       if (!currentNote) return;
 
       const html = editor.getHTML();
@@ -158,7 +160,7 @@ export function useTextEditor() {
         }, 3000);
       } catch (error) {
         setAutoSaveStatus("failed");
-        toast.error(error)
+        toast.error(error);
         setTimeout(() => {
           setAutoSaveStatus("enabled");
         }, 3000);
@@ -166,7 +168,7 @@ export function useTextEditor() {
     });
 
     // Handle update events
-    editor.on('update', () => {
+    editor.on("update", () => {
       setHasChanges(true);
       setAutoSaveStatus("pending");
 
@@ -198,7 +200,7 @@ export function useTextEditor() {
           }, 3000);
         } catch (error) {
           setAutoSaveStatus("failed");
-          toast.error(error)
+          toast.error(error);
           setTimeout(() => {
             setAutoSaveStatus("enabled");
           }, 3000);
@@ -207,8 +209,8 @@ export function useTextEditor() {
     });
 
     return () => {
-      editor.off('blur');
-      editor.off('update');
+      editor.off("blur");
+      editor.off("update");
     };
   }, [editor, currentNote, updateNote]);
 
@@ -225,7 +227,8 @@ export function useTextEditor() {
     }
 
     // UUID pattern matching for note IDs
-    const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const uuidPattern =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     const isValidNoteId = uuidPattern.test(id);
 
     // Reset content set flag whenever ID changes
@@ -261,11 +264,17 @@ export function useTextEditor() {
 
   // 2. Combine the note fetching retry logic
   useEffect(() => {
-    const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const uuidPattern =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     const isValidNoteId = id && uuidPattern.test(id);
-    
+
     let retryTimer;
-    if (isValidNoteId && !currentNote && !isLoading && retryCount < maxRetries) {
+    if (
+      isValidNoteId &&
+      !currentNote &&
+      !isLoading &&
+      retryCount < maxRetries
+    ) {
       retryTimer = setTimeout(() => {
         refreshCurrentNote && refreshCurrentNote();
         setRetryCount((prev) => prev + 1);
@@ -443,28 +452,34 @@ export function useTextEditor() {
 
   const addLink = useCallback(() => {
     if (!editor) return;
-    
-    const previousUrl = editor.getAttributes('link').href;
-    const url = window.prompt('URL', previousUrl);
-    
+
+    const previousUrl = editor.getAttributes("link").href;
+    const url = window.prompt("URL", previousUrl);
+
     // cancelled
     if (url === null) {
       return;
     }
-    
+
     // empty
-    if (url === '') {
-      editor.chain().focus().extendMarkRange('link').unsetLink().run();
+    if (url === "") {
+      editor.chain().focus().extendMarkRange("link").unsetLink().run();
       return;
     }
-    
+
     // Add https:// if protocol is missing
-    const normalizedUrl = url.startsWith('http://') || url.startsWith('https://') 
-      ? url 
-      : `https://${url}`;
-      
+    const normalizedUrl =
+      url.startsWith("http://") || url.startsWith("https://")
+        ? url
+        : `https://${url}`;
+
     // update link
-    editor.chain().focus().extendMarkRange('link').setLink({ href: normalizedUrl }).run();
+    editor
+      .chain()
+      .focus()
+      .extendMarkRange("link")
+      .setLink({ href: normalizedUrl })
+      .run();
   }, [editor]);
 
   // Visibility change handler
@@ -495,7 +510,7 @@ export function useTextEditor() {
   // Editor content initialization
   useEffect(() => {
     if (!editor || !isEditorReady) return;
-    
+
     if (currentNote && !contentAlreadySet.current) {
       try {
         let noteContent = "";
@@ -508,7 +523,9 @@ export function useTextEditor() {
               noteContent = "";
             } else {
               try {
-                noteContent = currentNote.content.content || JSON.stringify(currentNote.content);
+                noteContent =
+                  currentNote.content.content ||
+                  JSON.stringify(currentNote.content);
               } catch {
                 noteContent = "";
                 toast.error("Error parsing note content");
@@ -538,7 +555,7 @@ export function useTextEditor() {
       setAutoSaveStatus("enabled");
       contentAlreadySet.current = false;
     }
-    
+
     return () => {
       if (contentAlreadySet.current) {
         contentAlreadySet.current = false;

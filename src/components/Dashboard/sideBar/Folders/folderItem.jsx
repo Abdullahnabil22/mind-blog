@@ -24,8 +24,7 @@ export const FolderItem = ({
   setIsCreateNoteOpen,
   setIsCreateFolderOpen,
 }) => {
-  const { theme } = useTheme();
-  const isDark = theme !== "light";
+  const { isDark } = useTheme();
   const [expandedFolders, setExpandedFolders] = useState({});
   const [showOptions, setShowOptions] = useState(false);
   const [folderName, setFolderName] = useState(folder.name);

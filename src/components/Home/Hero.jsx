@@ -2,12 +2,11 @@
 import { motion } from "framer-motion";
 import { FaRocket, FaGithub, FaLinkedin } from "react-icons/fa";
 import { FaBrain } from "react-icons/fa6";
-import { useSettingsStore } from "../../stores";
 import { PiMouseScrollBold } from "react-icons/pi";
-
+import { useTheme } from "../../hooks/useTheme";
 
 export function Hero() {
-  const { theme } = useSettingsStore();
+  const { isDark } = useTheme();
 
   return (
     <section className="relative h-screen flex items-center justify-center overflow-hidden">
@@ -21,7 +20,7 @@ export function Hero() {
             <FaBrain size={50} className="text-green-500 mr-3" />
             <h1
               className={`text-5xl md:text-6xl lg:text-7xl font-extrabold ${
-                theme === "light" ? "text-black" : "text-amber-100"
+                !isDark ? "text-black" : "text-amber-100"
               }`}
             >
               Mind <span className="text-green-500">Blog</span>
@@ -30,7 +29,7 @@ export function Hero() {
 
           <p
             className={`text-xl md:text-2xl max-w-3xl mx-auto mb-10 ${
-              theme === "light" ? "text-gray-700" : "text-amber-50"
+              !isDark ? "text-gray-700" : "text-amber-50"
             }`}
           >
             Your personal knowledge workspace. Capture ideas, share insights,
@@ -41,7 +40,7 @@ export function Hero() {
             <motion.a
               href="/workspace"
               className={`px-8 py-4 cursor-pointer text-lg font-medium rounded-md flex items-center justify-center gap-2 transition-all ${
-                theme === "light"
+                !isDark
                   ? "bg-green-500 hover:bg-green-600 text-white"
                   : "bg-green-500 hover:bg-green-600 text-[#00170C]"
               }`}
@@ -54,7 +53,7 @@ export function Hero() {
 
             <motion.button
               className={`px-8 py-4 text-lg cursor-pointer font-medium rounded-md border-2 flex items-center justify-center gap-2 transition-all ${
-                theme === "light"
+                !isDark
                   ? "border-green-500 text-black hover:bg-green-50"
                   : "border-amber-100 text-amber-100 hover:bg-[#00170C]/50"
               }`}
@@ -77,7 +76,7 @@ export function Hero() {
                 key={index}
                 href={Icon.link}
                 className={`${
-                  theme === "light"
+                  !isDark
                     ? "text-gray-700 hover:text-green-500"
                     : "text-amber-100 hover:text-green-500"
                 } transition-colors`}
@@ -97,7 +96,7 @@ export function Hero() {
         >
           <PiMouseScrollBold
             className={`text-3xl ${
-              theme === "light" ? "text-gray-700" : "text-amber-100"
+              !isDark ? "text-gray-700" : "text-amber-100"
             }`}
           />
         </motion.div>

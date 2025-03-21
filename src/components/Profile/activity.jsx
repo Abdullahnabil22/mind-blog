@@ -1,7 +1,7 @@
-import { useSettingsStore } from "../../stores";
+import { useTheme } from "../../hooks/useTheme";
 
 export function Activity() {
-  const { theme } = useSettingsStore();
+  const { isDark } = useTheme();
   return (
     <>
       <div className="min-h-[300px] flex flex-col items-center justify-center text-center p-8">
@@ -23,15 +23,13 @@ export function Activity() {
         </div>
         <h3
           className={`text-xl font-bold mb-2 ${
-            theme === "light" ? "text-black" : "text-amber-100"
+            !isDark ? "text-black" : "text-amber-100"
           }`}
         >
           Activity Coming Soon
         </h3>
         <p
-          className={`max-w-md ${
-            theme === "light" ? "text-gray-400" : "text-amber-100"
-          }`}
+          className={`max-w-md ${!isDark ? "text-gray-400" : "text-amber-100"}`}
         >
           We're working on tracking your notes, comments, and interactions.
           Check back soon to see your activity history!

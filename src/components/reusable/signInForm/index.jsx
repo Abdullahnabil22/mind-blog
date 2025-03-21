@@ -7,12 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
-import { useSettingsStore } from "../../../stores";
+import { useTheme } from "../../../hooks/useTheme";
 
 export function SignInForm() {
   const { signIn, error, isLoading } = useAuth();
   const navigate = useNavigate();
-  const { theme } = useSettingsStore();
+  const { isDark } = useTheme();
   const [loginData, setLoginData] = useState({
     email: "",
     password: "",
@@ -46,7 +46,9 @@ export function SignInForm() {
     <>
       <form onSubmit={handleLogin} className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="email" className={theme === "dark" ? "text-gray-200" : ""}>Email</Label>
+          <Label htmlFor="email" className={isDark ? "text-gray-200" : ""}>
+            Email
+          </Label>
           <Input
             id="email"
             name="email"
@@ -55,13 +57,19 @@ export function SignInForm() {
             required
             value={loginData.email}
             onChange={handleLoginChange}
-            className={theme === "dark" ? "bg-gray-700 border-gray-600 text-gray-200 placeholder:text-gray-400" : ""}
+            className={
+              isDark
+                ? "bg-gray-700 border-gray-600 text-gray-200 placeholder:text-gray-400"
+                : ""
+            }
           />
         </div>
 
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <Label htmlFor="password" className={theme === "dark" ? "text-gray-200" : ""}>Password</Label>
+            <Label htmlFor="password" className={isDark ? "text-gray-200" : ""}>
+              Password
+            </Label>
             <a href="#" className="text-xs text-green-500 hover:text-green-400">
               Forgot password?
             </a>
@@ -74,14 +82,22 @@ export function SignInForm() {
             required
             value={loginData.password}
             onChange={handleLoginChange}
-            className={theme === "dark" ? "bg-gray-700 border-gray-600 text-gray-200 placeholder:text-gray-400" : ""}
+            className={
+              isDark
+                ? "bg-gray-700 border-gray-600 text-gray-200 placeholder:text-gray-400"
+                : ""
+            }
           />
         </div>
 
         {error && (
           <Alert
             variant="destructive"
-            className={theme === "dark" ? "bg-red-900/20 text-red-400 border-red-800" : "bg-red-50 text-red-600 border-red-200"}
+            className={
+              isDark
+                ? "bg-red-900/20 text-red-400 border-red-800"
+                : "bg-red-50 text-red-600 border-red-200"
+            }
           >
             <AlertDescription>{error.message}</AlertDescription>
           </Alert>

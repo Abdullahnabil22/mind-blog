@@ -1,15 +1,15 @@
-import { useSettingsStore } from "../../../stores";
+import { useTheme } from "../../../hooks/useTheme";
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 export function BackgroundAnimation() {
-  const { theme } = useSettingsStore();
+  const { isDark } = useTheme();
   return (
     <div className="absolute inset-0 overflow-hidden -z-1">
       {[...Array(30)].map((_, i) => (
         <motion.div
           key={i}
           className={`absolute w-3 h-3 rounded-full ${
-            theme === "light" ? "bg-green-500/70" : "bg-green-400/50"
+            !isDark ? "bg-green-500/70" : "bg-green-400/50"
           }`}
           style={{
             left: `${Math.random() * 100}%`,

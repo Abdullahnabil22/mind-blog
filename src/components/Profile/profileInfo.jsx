@@ -7,10 +7,10 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { PiUserCircleFill } from "react-icons/pi";
-import { useSettingsStore } from "../../stores";
+import { useTheme } from "../../hooks/useTheme";
 export function ProfileInfo({ profileData, setProfileData }) {
   const { profile, refreshProfile, user } = useAuth();
-  const { theme } = useSettingsStore();
+  const { isDark } = useTheme();
   const [isEditing, setIsEditing] = useState(false);
   const handleChange = (e) => {
     setProfileData({ ...profileData, [e.target.name]: e.target.value });
@@ -91,11 +91,11 @@ export function ProfileInfo({ profileData, setProfileData }) {
                     username: profile.username || "",
                     display_name: profile.display_name || "",
                     bio: profile.bio || "",
-                    avatar: profile.avatar_url || ""
+                    avatar: profile.avatar_url || "",
                   });
                 }}
                 className={`cursor-pointer ${
-                  theme === "light"
+                  !isDark
                     ? "text-green-500 border-green-500 hover:bg-green-50 hover:text-green-600"
                     : "text-[#00170C] border-amber-100 bg-amber-100 hover:text-amber-100 hover:bg-[#00170C]"
                 }`}
@@ -119,7 +119,7 @@ export function ProfileInfo({ profileData, setProfileData }) {
                 size="sm"
                 onClick={() => setIsEditing(true)}
                 className={`cursor-pointer ${
-                  theme === "light"
+                  !isDark
                     ? "text-green-500 border-green-500 hover:bg-green-50 hover:text-green-600"
                     : "text-[#00170C] border-amber-100 bg-amber-100 hover:text-amber-100 hover:bg-[#00170C]"
                 }  `}
@@ -135,14 +135,14 @@ export function ProfileInfo({ profileData, setProfileData }) {
                 <div>
                   <p
                     className={`text-sm font-medium  ${
-                      theme === "light" ? "text-gray-500" : "text-amber-50"
+                      !isDark ? "text-gray-500" : "text-amber-50"
                     }`}
                   >
                     Username
                   </p>
                   <p
                     className={`font-medium ${
-                      theme === "light" ? "text-black" : "text-amber-100"
+                      !isDark ? "text-black" : "text-amber-100"
                     }`}
                   >
                     {profileData.username}
@@ -155,14 +155,14 @@ export function ProfileInfo({ profileData, setProfileData }) {
                 <div>
                   <p
                     className={`text-sm font-medium  ${
-                      theme === "light" ? "text-gray-500" : "text-amber-50"
+                      !isDark ? "text-gray-500" : "text-amber-50"
                     }`}
                   >
                     Display Name
                   </p>
                   <p
                     className={`font-medium ${
-                      theme === "light" ? "text-black" : "text-amber-100"
+                      !isDark ? "text-black" : "text-amber-100"
                     }`}
                   >
                     {profileData.display_name || "Not set"}
@@ -175,14 +175,14 @@ export function ProfileInfo({ profileData, setProfileData }) {
                 <div>
                   <p
                     className={`text-sm font-medium  ${
-                      theme === "light" ? "text-gray-500" : "text-amber-50"
+                      !isDark ? "text-gray-500" : "text-amber-50"
                     }`}
                   >
                     Email
                   </p>
                   <p
                     className={`font-medium ${
-                      theme === "light" ? "text-black" : "text-amber-100"
+                      !isDark ? "text-black" : "text-amber-100"
                     }`}
                   >
                     {user?.email}
@@ -193,14 +193,14 @@ export function ProfileInfo({ profileData, setProfileData }) {
               <div className="space-y-2">
                 <p
                   className={`text-sm font-medium  ${
-                    theme === "light" ? "text-gray-500" : "text-amber-50"
+                    !isDark ? "text-gray-500" : "text-amber-50"
                   }`}
                 >
                   Bio
                 </p>
                 <p
                   className={`font-medium ${
-                    theme === "light" ? "text-black" : "text-amber-100"
+                    !isDark ? "text-black" : "text-amber-100"
                   }`}
                 >
                   {profileData.bio ||

@@ -9,8 +9,7 @@ import { useTheme } from "../../../hooks/useTheme";
 import { NotePathBreadcrumb } from "./NoteBreadcrumb";
 
 export function DashLayout() {
-  const { theme } = useTheme();
-  const isDark = theme !== "light";
+  const { isDark } = useTheme();
   const { id } = useParams();
 
   return (

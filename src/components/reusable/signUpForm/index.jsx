@@ -7,12 +7,12 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
 import { useNavigate } from "react-router";
-import { useSettingsStore } from "../../../stores";
+import { useTheme } from "../../../hooks/useTheme";
 
 export function SignUpForm() {
   const { signUp, isLoading, error } = useAuth();
   const [validationError, setValidationError] = useState(null);
-  const { theme } = useSettingsStore();
+  const { isDark } = useTheme();
   const [signupData, setSignupData] = useState({
     email: "",
     password: "",
@@ -62,7 +62,12 @@ export function SignUpForm() {
     <>
       <form onSubmit={handleSignup} className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="signup-email" className={theme === "dark" ? "text-gray-200" : ""}>Email</Label>
+          <Label
+            htmlFor="signup-email"
+            className={isDark ? "text-gray-200" : ""}
+          >
+            Email
+          </Label>
           <Input
             id="signup-email"
             name="email"
@@ -71,12 +76,18 @@ export function SignUpForm() {
             required
             value={signupData.email}
             onChange={handleSignupChange}
-            className={theme === "dark" ? "bg-gray-700 border-gray-600 text-gray-200 placeholder:text-gray-400" : ""}
+            className={
+              isDark
+                ? "bg-gray-700 border-gray-600 text-gray-200 placeholder:text-gray-400"
+                : ""
+            }
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="username" className={theme === "dark" ? "text-gray-200" : ""}>Username</Label>
+          <Label htmlFor="username" className={isDark ? "text-gray-200" : ""}>
+            Username
+          </Label>
           <Input
             id="username"
             name="username"
@@ -85,12 +96,21 @@ export function SignUpForm() {
             required
             value={signupData.username}
             onChange={handleSignupChange}
-            className={theme === "dark" ? "bg-gray-700 border-gray-600 text-gray-200 placeholder:text-gray-400" : ""}
+            className={
+              isDark
+                ? "bg-gray-700 border-gray-600 text-gray-200 placeholder:text-gray-400"
+                : ""
+            }
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="signup-password" className={theme === "dark" ? "text-gray-200" : ""}>Password</Label>
+          <Label
+            htmlFor="signup-password"
+            className={isDark ? "text-gray-200" : ""}
+          >
+            Password
+          </Label>
           <Input
             id="signup-password"
             name="password"
@@ -99,12 +119,21 @@ export function SignUpForm() {
             required
             value={signupData.password}
             onChange={handleSignupChange}
-            className={theme === "dark" ? "bg-gray-700 border-gray-600 text-gray-200 placeholder:text-gray-400" : ""}
+            className={
+              isDark
+                ? "bg-gray-700 border-gray-600 text-gray-200 placeholder:text-gray-400"
+                : ""
+            }
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="confirm-password" className={theme === "dark" ? "text-gray-200" : ""}>Confirm Password</Label>
+          <Label
+            htmlFor="confirm-password"
+            className={isDark ? "text-gray-200" : ""}
+          >
+            Confirm Password
+          </Label>
           <Input
             id="confirm-password"
             name="confirmPassword"
@@ -113,14 +142,22 @@ export function SignUpForm() {
             required
             value={signupData.confirmPassword}
             onChange={handleSignupChange}
-            className={theme === "dark" ? "bg-gray-700 border-gray-600 text-gray-200 placeholder:text-gray-400" : ""}
+            className={
+              isDark
+                ? "bg-gray-700 border-gray-600 text-gray-200 placeholder:text-gray-400"
+                : ""
+            }
           />
         </div>
 
         {(error || validationError) && (
           <Alert
             variant="destructive"
-            className={theme === "dark" ? "bg-red-900/20 text-red-400 border-red-800" : "bg-red-50 text-red-600 border-red-200"}
+            className={
+              isDark
+                ? "bg-red-900/20 text-red-400 border-red-800"
+                : "bg-red-50 text-red-600 border-red-200"
+            }
           >
             <AlertDescription>
               {validationError || error.message}

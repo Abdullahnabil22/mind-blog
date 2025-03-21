@@ -1,16 +1,15 @@
 import { useState } from "react";
 import { supabase } from "../../../lib/supabase";
 import { useAuth } from "../../../stores/useAuthStore";
-
 import { Loader2, Camera, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
-import { useSettingsStore } from "../../../stores";
+import { useTheme } from "../../../hooks/useTheme";
 
 export function Avatar({ setProfileData, profileData }) {
-  const { theme } = useSettingsStore();
+  const { isDark } = useTheme();
   const { profile, refreshProfile } = useAuth();
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
-  
+
   const handleAvatarUpload = async (e) => {
     try {
       setUploadingAvatar(true);
@@ -24,7 +23,7 @@ export function Avatar({ setProfileData, profileData }) {
       const fileName = `${profile.id}-${Math.random()
         .toString(36)
         .substring(2)}.${fileExt}`;
-      const fileSize = file.size / 1024 / 1024; 
+      const fileSize = file.size / 1024 / 1024;
       if (fileSize > 2) {
         throw new Error("File size must be less than 2MB");
       }
@@ -76,11 +75,11 @@ export function Avatar({ setProfileData, profileData }) {
       setUploadingAvatar(false);
     }
   };
-  
+
   const handleRemoveAvatar = async () => {
     try {
       setUploadingAvatar(true);
-      
+
       // Update profile to remove avatar URL
       const { error: updateError } = await supabase
         .from("profiles")
@@ -105,14 +104,14 @@ export function Avatar({ setProfileData, profileData }) {
       setUploadingAvatar(false);
     }
   };
-  
+
   return (
     <>
       <div className="flex flex-col items-center space-y-4">
         <div className="relative group">
           <div
             className={`w-40 h-40 rounded-full overflow-hidden border-4 shadow-lg ${
-              theme === "light" ? "border-green-400" : "border-amber-100"
+              !isDark ? "border-green-400" : "border-amber-100"
             }`}
           >
             {profileData.avatar ? (
@@ -132,7 +131,7 @@ export function Avatar({ setProfileData, profileData }) {
             <div className="relative group">
               <label
                 className={`p-3 rounded-full cursor-pointer shadow-lg transition-all duration-300 flex items-center justify-center ${
-                  theme === "light"
+                  !isDark
                     ? "bg-green-500 hover:bg-green-600 text-amber-100"
                     : "bg-amber-100 hover:bg-amber-200 text-[#00170C]"
                 }`}
@@ -150,15 +149,15 @@ export function Avatar({ setProfileData, profileData }) {
                   disabled={uploadingAvatar}
                 />
               </label>
-              
+
               {profileData.avatar && (
                 <button
                   className={`absolute right-0 bottom-12 p-3 rounded-full cursor-pointer shadow-lg transition-all duration-300 
                     opacity-0 scale-0 group-hover:opacity-100 group-hover:scale-100 origin-bottom flex items-center justify-center ${
-                    theme === "light"
-                      ? "bg-red-500 hover:bg-red-600 text-white"
-                      : "bg-red-400 hover:bg-red-500 text-white"
-                  }`}
+                      !isDark
+                        ? "bg-red-500 hover:bg-red-600 text-white"
+                        : "bg-red-400 hover:bg-red-500 text-white"
+                    }`}
                   onClick={handleRemoveAvatar}
                   disabled={uploadingAvatar}
                 >
@@ -172,15 +171,13 @@ export function Avatar({ setProfileData, profileData }) {
         <div className="text-center">
           <h3
             className={`text-xl font-bold ${
-              theme === "light" ? "text-black" : "text-amber-100"
+              !isDark ? "text-black" : "text-amber-100"
             }`}
           >
             {profile?.display_name || profile?.username}
           </h3>
           <p
-            className={`text-sm ${
-              theme === "light" ? "text-gray-500" : "text-amber-50"
-            }`}
+            className={`text-sm ${!isDark ? "text-gray-500" : "text-amber-50"}`}
           >
             Member since {new Date(profile?.created_at).toLocaleDateString()}
           </p>
