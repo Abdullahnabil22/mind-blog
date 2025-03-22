@@ -35,7 +35,6 @@ export function Explore() {
       <section ref={ref} className="container mx-auto px-8 py-4">
         <div className="grid gap-8 items-center md:grid-cols-2">
           <motion.div
-            className="order-2 md:order-1"
             variants={containerVariants}
             initial="hidden"
             animate={isInView ? "visible" : "hidden"}

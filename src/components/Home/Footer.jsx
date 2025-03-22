@@ -5,7 +5,7 @@ export function MainFooter() {
   return (
     <footer className="flex justify-center border-t p-6">
       <p
-        className={`text-sm ${
+        className={`text-sm text-center ${
           isDark
             ? "text-amber-100 border-gray-800"
             : "text-gray-500 border-gray-200"
