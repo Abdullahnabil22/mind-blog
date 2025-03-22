@@ -105,9 +105,6 @@ export const useAuthStore = create((set, get) => ({
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
       set({ user: session?.user ?? null });
-
-      // We'll handle profile fetching with React Query instead
-      // by invalidating the query when needed
     });
 
     // Return unsubscribe function
@@ -194,22 +191,6 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
-  gitHub: async () => {
-    set({ isLoading: true, error: null });
-
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "github",
-      });
-
-      if (error) throw error;
-      set({ isLoading: false });
-    } catch (error) {
-      set({ error, isLoading: false });
-      throw error;
-    }
-  },
-
   // Sign out
   signOut: async () => {
     set({ isLoading: true, error: null });
@@ -240,7 +221,6 @@ export function useAuth() {
     isAuthenticated,
     initialize,
     google,
-    gitHub,
   } = useAuthStore();
   const queryClient = useQueryClient();
 
@@ -338,7 +318,6 @@ export function useAuth() {
     signUp,
     signOut,
     google,
-    gitHub,
     isAuthenticated: isAuthenticated(),
     refreshProfile: () =>
       queryClient.invalidateQueries({

@@ -3,14 +3,9 @@ import { useParams } from "react-router";
 import { useNotes } from "../../../stores/useNotesStore";
 import { useTheme } from "../../../hooks/useTheme";
 import { useEditor } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import Color from "@tiptap/extension-color";
-import TextStyle from "@tiptap/extension-text-style";
-import Placeholder from "@tiptap/extension-placeholder";
-import TextAlign from "@tiptap/extension-text-align";
-import ListItem from "@tiptap/extension-list-item";
-import Link from "@tiptap/extension-link";
+import { all, createLowlight } from "lowlight";
 import toast from "react-hot-toast";
+import { getEditorConfig } from "./EditorConfig";
 
 export function useTextEditor() {
   const { isDark } = useTheme();
@@ -24,7 +19,7 @@ export function useTextEditor() {
   const autoSaveTimeout = useRef(null);
   const handleSaveContentRef = useRef(null);
   const contentAlreadySet = useRef(false);
-
+  const lowlight = createLowlight(all);
   // Get note data from the store
   const {
     currentNote,
@@ -41,94 +36,15 @@ export function useTextEditor() {
   // Track auto-save status
   const [autoSaveStatus, setAutoSaveStatus] = useState("enabled");
 
-  // Define the editor first, with a simpler onUpdate that doesn't reference functions defined later
-  const editor = useEditor({
-    extensions: [
-      StarterKit.configure({
-        paragraph: {
-          HTMLAttributes: {
-            class: "my-2 whitespace-pre-wrap",
-          },
-        },
-        heading: {
-          levels: [1, 2, 3, 4, 5, 6],
-          HTMLAttributes: ({ level }) => ({
-            class: `heading-${level} font-bold whitespace-pre-wrap`,
-          }),
-        },
-        bulletList: {
-          keepMarks: true,
-          keepAttributes: true,
-          HTMLAttributes: {
-            class: "bullet-list",
-          },
-        },
-        orderedList: {
-          keepMarks: true,
-          keepAttributes: true,
-          HTMLAttributes: {
-            class: "ordered-list",
-          },
-        },
-        listItem: {
-          HTMLAttributes: {
-            class: "list-item",
-          },
-        },
-        code: {
-          HTMLAttributes: {
-            class:
-              "bg-gray-100 dark:bg-amber-900/30 px-1.5 py-0.5 rounded font-mono text-sm",
-          },
-        },
-        codeBlock: {
-          HTMLAttributes: {
-            class:
-              "bg-gray-100 dark:bg-amber-900/20 rounded p-4 my-4 font-mono text-sm overflow-x-auto",
-          },
-        },
-        blockquote: {
-          HTMLAttributes: {
-            class:
-              "border-l-4 border-gray-300 dark:border-amber-700 pl-4 my-4 italic",
-          },
-        },
-      }),
-      TextStyle.configure({ types: [ListItem.name] }),
-      Color.configure({ types: [TextStyle.name, ListItem.name] }),
-      TextAlign.configure({
-        types: ["heading", "paragraph"],
-      }),
-      ListItem.configure({
-        HTMLAttributes: {
-          class: "list-item",
-        },
-      }),
-      Placeholder.configure({
-        placeholder: "Start writing here...",
-        emptyEditorClass: "is-editor-empty",
-      }),
-      Link.configure({
-        openOnClick: true,
-        HTMLAttributes: {
-          class: "text-blue-500 dark:text-amber-400 underline cursor-pointer",
-        },
-      }),
-    ],
-    content: "",
-    editorProps: {
-      attributes: {
-        class:
-          "prose prose-sm sm:prose lg:prose-lg xl:prose-xl mx-auto focus:outline-none p-4 min-h-[300px] whitespace-pre-wrap",
-        spellcheck: "true",
-      },
-    },
-    onReady: () => {
-      editorInitTimeout.current = setTimeout(() => {
-        setIsEditorReady(true);
-      }, 100);
-    },
-  });
+  // Define the editor with the imported configuration
+  const editor = useEditor(
+    getEditorConfig({
+      lowlight,
+      onReady: () => setIsEditorReady(true),
+      editorInitTimeout,
+      isDark,
+    })
+  );
 
   // Add editor event handlers after initialization
   useEffect(() => {
@@ -410,38 +326,6 @@ export function useTextEditor() {
     handleSaveContentRef.current = handleSaveContent;
   }, [handleSaveContent]);
 
-  // Define callback functions after the editor is initialized
-  const exportContent = useCallback(() => {
-    const blob = new Blob([editorContent], { type: "text/html" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = currentNote?.title
-      ? `${currentNote.title}.html`
-      : "document.html";
-    a.click();
-    URL.revokeObjectURL(url);
-  }, [editorContent, currentNote]);
-
-  const importContent = useCallback(() => {
-    if (!editor) return;
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = ".html,.txt,.md";
-    input.onchange = (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          editor.commands.setContent(e.target.result);
-          setTimeout(() => handleSaveContent(), 500);
-        };
-        reader.readAsText(file);
-      }
-    };
-    input.click();
-  }, [editor, handleSaveContent]);
-
   const setTextColor = useCallback(
     (color) => {
       if (!editor) return;
@@ -616,8 +500,6 @@ export function useTextEditor() {
     wordCount,
     characterCount,
     formatLastSaved,
-    exportContent,
-    importContent,
     setTextColor,
     addLink,
     handleSaveContent,
