@@ -20,6 +20,7 @@ import BulletList from "@tiptap/extension-bullet-list";
 import { getTaskListExtension } from "@mantine/tiptap";
 import { all, createLowlight } from "lowlight";
 import toast from "react-hot-toast";
+
 export function useEditorWithMantine() {
   // State management
   const { id } = useParams();
@@ -321,5 +322,6 @@ export function useEditorWithMantine() {
     formatLastSaved,
     handleSaveContent,
     setIsEditorReady,
+    setHasChanges,
   };
 }

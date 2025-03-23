@@ -1,13 +1,37 @@
 import { RichTextEditor } from "@mantine/tiptap";
 import "@mantine/tiptap/styles.css";
-import { IconDeviceFloppy, IconSourceCode } from "@tabler/icons-react";
+import {
+  IconDeviceFloppy,
+  IconSourceCode,
+  IconRobot,
+} from "@tabler/icons-react";
 import { useEditorWithMantine } from "./hooks/useEditor";
 import { useTheme } from "../../../hooks/useTheme";
 import { LoadingSection } from "./Sections/loadingSction";
 import { BubbleMenu } from "@tiptap/react";
-import { MantineProvider } from "@mantine/core";
+import { MantineProvider, Button } from "@mantine/core";
 import "./style.css";
-import { useEffect } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
+import { processTextWithAI } from "../../../services/aiService";
+import toast from "react-hot-toast";
+import { AIAssistant } from "./Sections/AIAssistant";
+
+// Custom notification function to ensure compatibility
+const showNotification = (message, type = "default") => {
+  switch (type) {
+    case "success":
+      toast.success(message);
+      break;
+    case "error":
+      toast.error(message);
+      break;
+    case "info":
+    case "warning":
+    default:
+      toast(message);
+      break;
+  }
+};
 
 export function Editor() {
   const { isDark, theme } = useTheme();
@@ -26,7 +50,95 @@ export function Editor() {
     wordCount,
     characterCount,
     formatLastSaved,
+    setHasChanges,
   } = useEditorWithMantine();
+
+  // AI Assistant state
+  const [selectedText, setSelectedText] = useState("");
+  const [aiResult, setAiResult] = useState("");
+  const [aiAssistantVisible, setAiAssistantVisible] = useState(false);
+  const [aiProcessing, setAiProcessing] = useState(false);
+
+  // Reference to track processing status
+  const isProcessingRef = useRef(false);
+
+  const handleRightClick = (event) => {
+    if (!editor) return;
+
+    const selection = window.getSelection().toString().trim();
+    if (selection) {
+      setSelectedText(selection);
+      setAiAssistantVisible(true);
+      event.preventDefault();
+    }
+  };
+
+  // Handler for AI actions (rewrite, continue, etc)
+  const handleAction = useCallback(
+    async (action) => {
+      if (!action) {
+        // User closed the menu
+        return;
+      }
+
+      if (
+        !editor ||
+        isProcessingRef.current ||
+        !currentNote?.id ||
+        !selectedText
+      ) {
+        console.log("Early return conditions:", {
+          "editor missing": !editor,
+          "is processing": isProcessingRef.current,
+          "note id missing": !currentNote?.id,
+          "selected text missing": !selectedText,
+        });
+        return;
+      }
+
+      try {
+        isProcessingRef.current = true;
+        setAiProcessing(true);
+        setAiResult("");
+
+        // Process the request with AI
+        const result = await processTextWithAI(
+          selectedText,
+          action,
+          currentNote.id
+        );
+
+        // Error handling for AI processing
+        if (!result) {
+          showNotification("Failed to process request", "error");
+          setAiProcessing(false);
+          isProcessingRef.current = false;
+          return;
+        }
+
+        // Store the AI result for display
+        setAiResult(result);
+        setHasChanges(true);
+      } catch (error) {
+        console.error("Error in handleAction:", error);
+        showNotification(
+          "An error occurred: " + (error.message || "Unknown error"),
+          "error"
+        );
+      } finally {
+        setAiProcessing(false);
+        isProcessingRef.current = false;
+      }
+    },
+    [editor, isProcessingRef, currentNote, setHasChanges, selectedText]
+  );
+
+  // Close the AI Assistant
+  const handleCloseAiAssistant = useCallback(() => {
+    setAiAssistantVisible(false);
+    setAiResult("");
+  }, []);
+
   // Color presets
   const colorPresets = [
     { color: "#E03131", name: "Red" },
@@ -38,6 +150,19 @@ export function Editor() {
     { color: "#E64980", name: "Pink" },
     { color: "#3BC9DB", name: "Cyan" },
   ];
+
+  // Function to open AI Assistant with current selection
+  const openAIAssistant = () => {
+    if (!editor) return;
+
+    const selection = window.getSelection().toString().trim();
+    if (selection) {
+      setSelectedText(selection);
+      setAiAssistantVisible(true);
+    } else {
+      showNotification("Please select some text first", "info");
+    }
+  };
 
   // Loading state
   if (isLoading) {
@@ -65,9 +190,10 @@ export function Editor() {
     );
   }
   const codeIcon = () => <IconSourceCode size={16} stroke={3.5} />;
+  const aiIcon = () => <IconRobot size={16} stroke={3.5} />;
   return (
     <MantineProvider>
-      <div className="flex flex-col">
+      <div className="flex flex-col" onContextMenu={handleRightClick}>
         {/* Note info header */}
         {currentNote && (
           <div
@@ -277,6 +403,23 @@ export function Editor() {
               <RichTextEditor.Undo />
               <RichTextEditor.Redo />
             </RichTextEditor.ControlsGroup>
+            <RichTextEditor.ControlsGroup
+              className={`${
+                isDark ? "custom-dark-button" : "custom-light-button"
+              }`}
+            >
+              <RichTextEditor.Control
+                onClick={openAIAssistant}
+                title="AI Assistant"
+                className={`${
+                  isDark
+                    ? "text-amber-300 hover:bg-amber-900/50"
+                    : "text-blue-500 hover:bg-gray-200"
+                }`}
+              >
+                {aiIcon()}
+              </RichTextEditor.Control>
+            </RichTextEditor.ControlsGroup>
           </RichTextEditor.Toolbar>
           {editor && (
             <BubbleMenu
@@ -308,6 +451,16 @@ export function Editor() {
             }`}
           />
         </RichTextEditor>
+
+        {/* AI Assistant Component */}
+        <AIAssistant
+          isVisible={aiAssistantVisible}
+          selectedText={selectedText}
+          aiResult={aiResult}
+          isLoading={aiProcessing}
+          onClose={handleCloseAiAssistant}
+          onAction={handleAction}
+        />
       </div>
     </MantineProvider>
   );

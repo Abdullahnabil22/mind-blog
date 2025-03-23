@@ -3,6 +3,7 @@ import { Explore } from "./Explore";
 import { MainFooter } from "./Footer";
 import { Hero } from "./Hero";
 import HowItWorksSection from "./how";
+import { AiSupport } from "./AiSupport";
 
 export function Home() {
   return (
@@ -10,6 +11,7 @@ export function Home() {
       <BackgroundAnimation />
       <Hero />
       <Explore />
+      <AiSupport />
       <HowItWorksSection />
       <MainFooter />
     </>
