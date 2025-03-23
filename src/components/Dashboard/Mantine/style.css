@@ -47,11 +47,11 @@
 }
 .custom-dark-content {
   border: 1px solid #fef3c6 !important;
-  height: 64vh !important;
+  min-height: 64vh !important;
 }
 .custom-light-content {
   border: 1px solid #e5e7eb !important;
-  height: 64vh !important;
+  min-height: 64vh !important;
 }
 
 .custom-dark-content div blockquote {
