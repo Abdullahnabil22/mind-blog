@@ -47,10 +47,11 @@ const dashboard = lazy(() =>
   }))
 );
 const textEditor = lazy(() =>
-  import("./components/Dashboard/textEditor").then((module) => ({
-    default: module.default || module.TextEditor,
+  import("./components/Dashboard/Mantine/index").then((module) => ({
+    default: module.default || module.Editor,
   }))
 );
+
 export const routes = [
   {
     path: "/",
@@ -64,6 +65,7 @@ export const routes = [
           </ProtectedRoute>
         ),
       },
+
       {
         path: "login",
         element: <LazyComponent component={Login} />,
