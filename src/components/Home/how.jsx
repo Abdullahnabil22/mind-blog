@@ -10,6 +10,7 @@ export default function HowItWorksSection() {
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
+      viewport={{ once: true }}
       className="py-16"
     >
       <div className="container mx-auto px-4">
@@ -17,6 +18,7 @@ export default function HowItWorksSection() {
           initial={{ y: 50, opacity: 0 }}
           whileInView={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.2 }}
+          viewport={{ once: true }}
           className="text-center max-w-6xl mb-12 mx-auto"
         >
           <h2 className="text-3xl font-bold mb-4 md:text-4xl tracking-tight">
@@ -34,6 +36,7 @@ export default function HowItWorksSection() {
           initial={{ scale: 0.95, opacity: 0 }}
           whileInView={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.7, delay: 0.4 }}
+          viewport={{ once: true }}
           className={`rounded-xl overflow-hidden shadow-2xl border mx-4 ${
             isDark ? "border-gray-700 bg-gray-800" : "border-gray-200 bg-white"
           }`}
@@ -49,6 +52,7 @@ export default function HowItWorksSection() {
               initial={{ x: -20, opacity: 0 }}
               whileInView={{ x: 0, opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.6 }}
+              viewport={{ once: true }}
               className="flex space-x-2"
             >
               <div className="w-3 h-3 rounded-full bg-red-500"></div>
@@ -60,6 +64,7 @@ export default function HowItWorksSection() {
             initial={{ y: 20, opacity: 0 }}
             whileInView={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.8 }}
+            viewport={{ once: true }}
             src={isDark ? "MindDark.png" : "MindBlog.png"}
             alt="Mind Blog workspace interface showing document editor"
             className="w-full h-auto"
