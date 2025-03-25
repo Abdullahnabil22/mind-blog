@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { BiEdit } from "react-icons/bi";
 import { SiGoogletranslate } from "react-icons/si";
 import { MdOutlineSummarize } from "react-icons/md";
-import { FaLanguage, FaCopy } from "react-icons/fa";
+import { FaCopy } from "react-icons/fa";
 import { useTheme } from "../../../../hooks/useTheme";
 import { Button } from "@mantine/core";
 
@@ -30,11 +30,11 @@ export function AIAssistant({
           initial={{ opacity: 0, x: 30 }}
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: 30 }}
-          style={{ 
-            maxHeight: "80vh", 
+          style={{
+            maxHeight: "80vh",
             overflowY: "auto",
             scrollbarWidth: "thin",
-            scrollbarColor: isDark ? "#4B5563 #1F2937" : "#CBD5E0 #EDF2F7" 
+            scrollbarColor: isDark ? "#4B5563 #1F2937" : "#CBD5E0 #EDF2F7",
           }}
         >
           {/* Header */}
@@ -111,7 +111,10 @@ export function AIAssistant({
                   size="xs"
                   color="blue"
                 >
-                  <MdOutlineSummarize size={16} style={{ marginRight: "6px" }} />
+                  <MdOutlineSummarize
+                    size={16}
+                    style={{ marginRight: "6px" }}
+                  />
                   Summarize
                 </Button>
                 <Button
@@ -133,7 +136,7 @@ export function AIAssistant({
                   size="xs"
                   color="indigo"
                 >
-                  <FaLanguage size={16} style={{ marginRight: "6px" }} />
+                  <SiGoogletranslate size={16} style={{ marginRight: "6px" }} />
                   French
                 </Button>
                 <Button
@@ -146,6 +149,17 @@ export function AIAssistant({
                 >
                   <SiGoogletranslate size={16} style={{ marginRight: "6px" }} />
                   Spanish
+                </Button>
+                <Button
+                  variant="light"
+                  className={`${isDark ? "hover:bg-gray-700" : ""}`}
+                  onClick={() => onAction("translate-en")}
+                  disabled={!selectedText || isLoading}
+                  size="xs"
+                  color="red"
+                >
+                  <SiGoogletranslate size={16} style={{ marginRight: "6px" }} />
+                  English
                 </Button>
                 <Button
                   variant="light"
