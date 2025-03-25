@@ -59,6 +59,8 @@ function getSystemPrompt(action) {
       return "You are a helpful assistant that translates text from English to French only return the french translation.";
     case "translate-es":
       return "You are a helpful assistant that translates text from English to Spanish only return the spanish translation.";
+    case "translate-en":
+      return "You are a helpful assistant that translates text from Arabic to English only return the english translation.";
     case "improve":
       return "You are a helpful assistant that improves the clarity and quality of writing while maintaining the original meaning only return the improved text. ";
     default:
