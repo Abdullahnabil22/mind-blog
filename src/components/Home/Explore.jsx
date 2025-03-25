@@ -7,7 +7,7 @@ import { motion, useInView } from "framer-motion";
 export function Explore() {
   const { isDark } = useTheme();
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: false, margin: "-100px" });
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   const containerVariants = {
     hidden: { opacity: 0 },

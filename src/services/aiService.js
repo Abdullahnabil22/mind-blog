@@ -11,14 +11,14 @@ export async function processTextWithAI(text, action) {
       console.warn("No API key provided. Using mock response");
       return getMockResponse(text, action);
     }
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const response = await fetch("https://api.mistral.ai/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${API_KEY}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
+        model: "mistral-large-latest",
         messages: [
           {
             role: "system",
@@ -52,15 +52,15 @@ export async function processTextWithAI(text, action) {
 function getSystemPrompt(action) {
   switch (action) {
     case "summarize":
-      return "You are a helpful assistant that summarizes text concisely while preserving the key points.";
+      return "You are a helpful assistant that summarizes text concisely while preserving the key points only return the summary.";
     case "translate-ar":
-      return "You are a helpful assistant that translates text from English to Arabic.";
+      return "You are a helpful assistant that translates text from English to Arabic only return the arabic translation.";
     case "translate-fr":
-      return "You are a helpful assistant that translates text from English to French.";
+      return "You are a helpful assistant that translates text from English to French only return the french translation.";
     case "translate-es":
-      return "You are a helpful assistant that translates text from English to Spanish.";
+      return "You are a helpful assistant that translates text from English to Spanish only return the spanish translation.";
     case "improve":
-      return "You are a helpful assistant that improves the clarity and quality of writing while maintaining the original meaning.";
+      return "You are a helpful assistant that improves the clarity and quality of writing while maintaining the original meaning only return the improved text. ";
     default:
       return "You are a helpful assistant that processes text as requested.";
   }

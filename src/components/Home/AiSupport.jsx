@@ -11,7 +11,7 @@ import { Link } from "react-router";
 export function AiSupport() {
   const { isDark } = useTheme();
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: false, margin: "-100px" });
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
   
   const aiFeatures = [
     {
@@ -80,14 +80,14 @@ export function AiSupport() {
           initial={{ y: 50, opacity: 0 }}
           whileInView={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.8 }}
-          viewport={{ once: false, margin: "-100px" }}
+          viewport={{ once: true, margin: "-100px" }}
         >
           <div className="flex items-center justify-center mb-4">
             <motion.div
               initial={{ scale: 0, rotate: -180 }}
               whileInView={{ scale: 1, rotate: 0 }}
               transition={{ duration: 0.8, type: "spring" }}
-              viewport={{ once: false }}
+              viewport={{ once: true }}
             >
               <FaBrain className={`text-4xl text-green-500`} />
             </motion.div>
@@ -97,7 +97,7 @@ export function AiSupport() {
             variants={titleVariants}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: false, margin: "-100px" }}
+            viewport={{ once: true, margin: "-100px" }}
             className={`text-3xl md:text-4xl font-bold mb-4 ${isDark ? "text-white" : "text-gray-800"}`}
           >
             Your AI Writing Journey Begins
@@ -107,7 +107,7 @@ export function AiSupport() {
             variants={titleVariants}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: false, margin: "-100px" }}
+            viewport={{ once: true, margin: "-100px" }}
             className={`text-lg max-w-3xl mx-auto ${isDark ? "text-amber-50" : "text-gray-600"}`}
           >
             Discover how our intelligent AI tools transform your writing process and unlock new creative possibilities
@@ -143,7 +143,7 @@ export function AiSupport() {
                   initial={{ opacity: 0, scale: 0 }}
                   whileInView={{ opacity: 1, scale: 1 }}
                   transition={{ delay: index * 0.3 + 0.3, duration: 0.5 }}
-                  viewport={{ once: false }}
+                  viewport={{ once: true }}
                   className="absolute top-0 right-0 w-24 h-24 -mt-10 -mr-10 rounded-full opacity-10"
                   style={{ backgroundColor: feature.color }}
                 />
@@ -163,7 +163,7 @@ export function AiSupport() {
                   initial={{ opacity: 0, x: -20 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.3 + 0.2, duration: 0.5 }}
-                  viewport={{ once: false }}
+                  viewport={{ once: true }}
                   className={`text-xl font-semibold mb-3 ${isDark ? "text-white" : "text-gray-800"}`}
                 >
                   {feature.title}
@@ -173,7 +173,7 @@ export function AiSupport() {
                   initial={{ opacity: 0 }}
                   whileInView={{ opacity: 1 }}
                   transition={{ delay: index * 0.3 + 0.4, duration: 0.6 }}
-                  viewport={{ once: false }}
+                  viewport={{ once: true }}
                   className={`${isDark ? "text-amber-50" : "text-gray-600"}`}
                 >
                   {feature.description}
@@ -187,7 +187,7 @@ export function AiSupport() {
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8, duration: 0.7 }}
-          viewport={{ once: false, margin: "-50px" }}
+          viewport={{ once: true, margin: "-50px" }}
           className="text-center mt-16"
         >
           <p className={`text-lg italic ${isDark ? "text-amber-100" : "text-gray-700"}`}>
