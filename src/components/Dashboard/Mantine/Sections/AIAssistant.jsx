@@ -15,6 +15,7 @@ export function AIAssistant({
   isLoading,
   onClose,
   onAction,
+  ref
 }) {
   const { isDark } = useTheme();
 
@@ -22,6 +23,7 @@ export function AIAssistant({
     <AnimatePresence>
       {isVisible && (
         <motion.div
+          ref={ref}
           className={`fixed right-4 top-20 w-80 shadow-xl rounded-lg overflow-hidden z-50 ${
             isDark
               ? "bg-gray-800 border border-gray-700"
@@ -226,4 +228,4 @@ export function AIAssistant({
       )}
     </AnimatePresence>
   );
-}
+};

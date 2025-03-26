@@ -138,7 +138,7 @@ import { defaultQueryConfig, defaultMutationOptions } from "../lib/queryConfig";
  */
 
 // Base Zustand store for UI state
-export const useTagsStore = create((set) => ({
+const useTagsStore = create((set) => ({
   isLoading: false,
   error: null,
 

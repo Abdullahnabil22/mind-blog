@@ -66,7 +66,7 @@ import { defaultQueryConfig } from "../lib/queryConfig";
  */
 
 // Base Zustand store for UI state and actions
-export const useFoldersStore = create((set, get) => ({
+const useFoldersStore = create((set, get) => ({
   // State
   folders: [],
   isLoading: false,
