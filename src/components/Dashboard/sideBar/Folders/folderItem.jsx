@@ -16,6 +16,7 @@ import { useFolders } from "../../../../stores/useFoldersStore";
 import toast from "react-hot-toast";
 import { ConfirmationDialog } from "../../../reusable/confirmationDialog";
 import { RenameDialog } from "../../../reusable/renameDialog";
+import { OptionsMenu } from "../../../reusable/optionsMenu";
 
 export const FolderItem = ({
   folder,
@@ -32,7 +33,7 @@ export const FolderItem = ({
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const { updateFolder, deleteFolder } = useFolders();
   const isExpanded = expandedFolders[folder.id];
-  const paddingLeft = `${level * 12 + 8}px`;
+  const paddingLeft = `${level * 2 + 6}px`;
 
   const toggleFolder = (folderId) => {
     setExpandedFolders((prev) => ({
@@ -102,7 +103,7 @@ export const FolderItem = ({
           {folder.name}
         </span>
 
-        <div className="ml-auto flex space-x-1 opacity-0 group-hover:opacity-100">
+        <div className="ml-auto flex space-x-1 md:opacity-0 md:group-hover:opacity-100">
           <Button
             variant="ghost"
             size="icon"
@@ -140,42 +141,35 @@ export const FolderItem = ({
             <MoreVertical className="w-3 h-3" />
           </Button>
 
-          {/* Simple inline menu */}
-          {showOptions && (
-            <div
-              className={`absolute z-50 right-0 top-8 w-36 rounded-md shadow-lg py-1 ${
-                isDark
-                  ? "bg-gray-900 text-amber-100 border border-gray-800"
-                  : "bg-white border border-gray-200"
+          <OptionsMenu
+            isOpen={showOptions}
+            onClose={() => setShowOptions(false)}
+          >
+            <button
+              className={`flex items-center w-full px-3 py-2 text-sm cursor-pointer ${
+                isDark ? "hover:bg-gray-800" : "hover:bg-gray-100"
               }`}
-              onClick={(e) => e.stopPropagation()}
+              onClick={() => {
+                setShowOptions(false);
+                setIsRenameDialogOpen(true);
+              }}
             >
-              <button
-                className={`flex items-center w-full px-3 py-2 text-sm cursor-pointer ${
-                  isDark ? "hover:bg-gray-800" : "hover:bg-gray-100"
-                }`}
-                onClick={() => {
-                  setShowOptions(false);
-                  setIsRenameDialogOpen(true);
-                }}
-              >
-                <Pencil className="w-3.5 h-3.5 mr-2" />
-                <span>Rename</span>
-              </button>
-              <button
-                className={`flex items-center w-full px-3 py-2 text-sm text-red-500 cursor-pointer ${
-                  isDark ? "hover:bg-gray-800" : "hover:bg-gray-100"
-                }`}
-                onClick={() => {
-                  setShowOptions(false);
-                  setIsDeleteConfirmOpen(true);
-                }}
-              >
-                <Trash2 className="w-3.5 h-3.5 mr-2" />
-                <span>Delete</span>
-              </button>
-            </div>
-          )}
+              <Pencil className="w-3.5 h-3.5 mr-2" />
+              <span>Rename</span>
+            </button>
+            <button
+              className={`flex items-center w-full px-3 py-2 text-sm text-red-500 cursor-pointer ${
+                isDark ? "hover:bg-gray-800" : "hover:bg-gray-100"
+              }`}
+              onClick={() => {
+                setShowOptions(false);
+                setIsDeleteConfirmOpen(true);
+              }}
+            >
+              <Trash2 className="w-3.5 h-3.5 mr-2" />
+              <span>Delete</span>
+            </button>
+          </OptionsMenu>
         </div>
       </div>
 

@@ -67,7 +67,7 @@ import { defaultQueryConfig, defaultMutationOptions } from "../lib/queryConfig";
  */
 
 // Base Zustand store for UI state
-export const useKnowledgeGraphStore = create((set) => ({
+const useKnowledgeGraphStore = create((set) => ({
   isLoading: false,
   error: null,
 

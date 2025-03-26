@@ -111,7 +111,7 @@ import { sessionQueryConfig } from "../lib/queryConfig";
  */
 
 // Base Zustand store for search state
-export const useSearchStore = create((set, get) => ({
+const useSearchStore = create((set, get) => ({
   searchQuery: "",
   filters: {
     folders: [],

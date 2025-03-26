@@ -85,7 +85,7 @@ import { sessionQueryConfig } from "../lib/queryConfig";
  */
 
 // Create the base Zustand store
-export const useAuthStore = create((set, get) => ({
+const useAuthStore = create((set, get) => ({
   // State
   user: null,
   profile: null,

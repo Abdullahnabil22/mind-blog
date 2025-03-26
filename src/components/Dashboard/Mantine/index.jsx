@@ -15,6 +15,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { processTextWithAI } from "../../../services/aiService";
 import toast from "react-hot-toast";
 import { AIAssistant } from "./Sections/AIAssistant";
+import { useClickOutside } from "../../../hooks/useClickOutside";
 
 // Custom notification function to ensure compatibility
 const showNotification = (message, type = "default") => {
@@ -61,6 +62,9 @@ export function Editor() {
 
   // Reference to track processing status
   const isProcessingRef = useRef(false);
+
+  // Add a ref for the AI Assistant
+  const aiAssistantRef = useRef(null);
 
   const handleRightClick = (event) => {
     if (!editor) return;
@@ -163,7 +167,8 @@ export function Editor() {
       showNotification("Please select some text first", "info");
     }
   };
-
+  // Use the click outside hook
+  useClickOutside(aiAssistantRef, handleCloseAiAssistant, aiAssistantVisible);
   // Loading state
   if (isLoading) {
     return <LoadingSection />;
@@ -454,6 +459,7 @@ export function Editor() {
 
         {/* AI Assistant Component */}
         <AIAssistant
+          ref={aiAssistantRef}
           isVisible={aiAssistantVisible}
           selectedText={selectedText}
           aiResult={aiResult}

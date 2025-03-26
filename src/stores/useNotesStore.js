@@ -113,7 +113,7 @@ import { defaultQueryConfig, sessionQueryConfig } from "../lib/queryConfig";
  */
 
 // Base Zustand store for UI state
-export const useNotesStore = create((set) => ({
+const useNotesStore = create((set) => ({
   currentNoteId: null,
   isLoading: false,
   error: null,
