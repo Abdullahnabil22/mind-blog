@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../stores/useAuthStore";
-import { useSettingsStore } from "../../stores";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
@@ -8,10 +7,11 @@ import { Activity } from "./activity";
 import { Avatar } from "../reusable/avatar";
 import { ProfileInfo } from "./profileInfo";
 import { MainFooter } from "../Home/Footer";
+import { useTheme } from "../../hooks/useTheme";
 
 export function Profile() {
   const { profile } = useAuth();
-  const { theme } = useSettingsStore();
+  const { isDark } = useTheme();
 
   const [profileData, setProfileData] = useState({
     username: "",
@@ -42,14 +42,14 @@ export function Profile() {
           <header className="pb-0">
             <p
               className={`text-3xl font-bold text-center ${
-                theme === "dark" ? "text-amber-100" : "text-black"
+                isDark ? "text-amber-100" : "text-black"
               }`}
             >
               Your <span className="text-green-500">Profile</span>
             </p>
             <p
               className={`text-center text-sm ${
-                theme === "dark" ? "text-amber-50" : "text-gray-500"
+                isDark ? "text-amber-50" : "text-gray-500"
               }`}
             >
               Manage your personal information and preferences
@@ -60,7 +60,7 @@ export function Profile() {
             <Tabs defaultValue="profile" className="w-full ">
               <TabsList
                 className={`grid w-full grid-cols-2 mb-8 ${
-                  theme === "light" ? "bg-[#eaeaea]" : "bg-amber-100"
+                  !isDark ? "bg-[#eaeaea]" : "bg-amber-100"
                 }`}
               >
                 <TabsTrigger value="profile">Profile</TabsTrigger>

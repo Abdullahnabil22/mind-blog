@@ -21,7 +21,7 @@ export const defaultQueryConfig = (overrides = {}) => ({
   suspense: false,
   keepPreviousData: true,
   retry: 1,
-  ...overrides
+  ...overrides,
 });
 
 /**
@@ -29,11 +29,11 @@ export const defaultQueryConfig = (overrides = {}) => ({
  * @param {Object} overrides - Override specific configuration options
  * @returns {Object} Query configuration
  */
-export const sessionQueryConfig = (overrides = {}) => 
+export const sessionQueryConfig = (overrides = {}) =>
   defaultQueryConfig({
     staleTime: 1 * 60 * 1000, // 1 minute
     cacheTime: 5 * 60 * 1000, // 5 minutes
-    ...overrides
+    ...overrides,
   });
 
 /**
@@ -43,19 +43,29 @@ export const sessionQueryConfig = (overrides = {}) =>
  * @param {Object} overrides - Additional callback overrides
  * @returns {Object} Mutation callbacks
  */
-export const defaultMutationOptions = (queryClient, queryKey, overrides = {}) => ({
+export const defaultMutationOptions = (
+  queryClient,
+  queryKey,
+  overrides = {}
+) => ({
   onSuccess: () => {
     if (Array.isArray(queryKey)) {
-      queryKey.forEach(key => {
-        queryClient.invalidateQueries({ queryKey: key, exact: typeof key !== 'string' });
+      queryKey.forEach((key) => {
+        queryClient.invalidateQueries({
+          queryKey: key,
+          exact: typeof key !== "string",
+        });
       });
     } else {
-      queryClient.invalidateQueries({ queryKey, exact: typeof queryKey !== 'string' });
+      queryClient.invalidateQueries({
+        queryKey,
+        exact: typeof queryKey !== "string",
+      });
     }
-    
+
     if (overrides.onSuccess) {
       overrides.onSuccess();
     }
   },
-  ...overrides
-}); 
+  ...overrides,
+});
