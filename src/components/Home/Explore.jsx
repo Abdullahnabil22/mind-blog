@@ -3,6 +3,7 @@ import { Button } from "../ui/button";
 import { useRef } from "react";
 // eslint-disable-next-line no-unused-vars
 import { motion, useInView } from "framer-motion";
+import { Link } from "react-router";
 
 export function Explore() {
   const { isDark } = useTheme();
@@ -56,9 +57,12 @@ export function Explore() {
               thinking.
             </motion.p>
             <motion.div variants={itemVariants}>
-              <Button className="bg-green-500 rounded-lg text-white cursor-pointer hover:bg-green-800">
+              <Link
+                to="https://www.linkedin.com/posts/abdullah-nabil22_wanted-to-share-a-small-website-i-made-while-activity-7315016185987719171-Mp4d?utm_source=share&utm_medium=member_desktop&rcm=ACoAADaLmmsB18Sne_0qvRSEg_18Qpys8EZFqRk"
+                className="px-4 py-2 bg-green-500 rounded-lg text-white cursor-pointer hover:bg-green-800"
+              >
                 See how it works
-              </Button>
+              </Link>
             </motion.div>
           </motion.div>
 
