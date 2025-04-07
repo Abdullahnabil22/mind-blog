@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
-import { useNavigate } from "react-router";
 import { useTheme } from "../../../hooks/useTheme";
 
 export function SignUpForm() {
@@ -19,7 +18,6 @@ export function SignUpForm() {
     username: "",
     confirmPassword: "",
   });
-  const navigate = useNavigate();
 
   const handleSignupChange = (e) => {
     setSignupData({ ...signupData, [e.target.name]: e.target.value });
@@ -40,20 +38,11 @@ export function SignUpForm() {
     }
 
     try {
-      const { needsEmailConfirmation } = await signUp({
+      await signUp({
         email: signupData.email,
         password: signupData.password,
         username: signupData.username,
       });
-
-      if (needsEmailConfirmation) {
-        navigate("/", {
-          state: { email: signupData.email },
-          replace: true,
-        });
-      } else {
-        navigate("/");
-      }
     } catch (err) {
       toast.error(err?.message || "Sign up failed");
     }
