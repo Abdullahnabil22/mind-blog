@@ -25,11 +25,11 @@ export function CreateDialog({
       <Dialog open={isOpen} onOpenChange={onOpenChange}>
         <DialogContent
           className={
-            isDark ? "bg-[#00170C] text-amber-100 border-gray-800" : ""
+            isDark ? "bg-[#00170C] text-amber-100 border-gray-800" : "text-black"
           }
         >
           <DialogHeader>
-            <DialogTitle className={isDark ? "text-amber-100" : ""}>
+            <DialogTitle className={isDark ? "text-amber-100" : "text-black"}>
               Create New {title}
             </DialogTitle>
           </DialogHeader>
@@ -37,7 +37,7 @@ export function CreateDialog({
             <div className="space-y-2">
               <Label
                 htmlFor="folder-name"
-                className={isDark ? "text-amber-100" : ""}
+                className={isDark ? "text-amber-100" : "text-black"}
               >
                 {title} Name
               </Label>
@@ -47,7 +47,7 @@ export function CreateDialog({
                 onChange={(e) => setNewContentName(e.target.value)}
                 placeholder={`Enter ${title} name`}
                 className={
-                  isDark ? "bg-[#000e07] text-amber-100 border-gray-700" : ""
+                  isDark ? "bg-[#000e07] text-amber-100 border-gray-700" : "text-black"
                 }
               />
             </div>
@@ -59,7 +59,7 @@ export function CreateDialog({
               className={`${
                 isDark
                   ? "text-amber-100 border-gray-700 hover:bg-amber-100 bg-[#00170C]"
-                  : ""
+                  : "text-black"
               } cursor-pointer`}
             >
               Cancel

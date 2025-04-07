@@ -1,8 +1,7 @@
 /**
  * @file Authentication store and hook
  *
- * This file provides authentication state management using Zustand
- * combined with React Query for efficient data fetching and caching.
+ * This file provides authentication state management using Zustand.
  *
  * @example
  * // Using the auth hook in a login component
@@ -64,9 +63,7 @@
 
 import { create } from "zustand";
 import { supabase } from "../lib/supabase";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { sessionQueryConfig } from "../lib/queryConfig";
 
 /**
  * Base Zustand store for authentication state
@@ -88,7 +85,6 @@ import { sessionQueryConfig } from "../lib/queryConfig";
 const useAuthStore = create((set, get) => ({
   // State
   user: null,
-  profile: null,
   isLoading: true,
   error: null,
 
@@ -111,25 +107,6 @@ const useAuthStore = create((set, get) => ({
     return () => {
       subscription?.unsubscribe();
     };
-  },
-
-  // Fetch user profile
-  fetchProfile: async (userId) => {
-    if (!userId) return;
-
-    try {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", userId)
-        .single();
-
-      if (error) throw error;
-      set({ profile: data });
-    } catch (error) {
-      set({ error });
-      console.error("Error fetching profile:", error);
-    }
   },
 
   // Sign in
@@ -167,7 +144,6 @@ const useAuthStore = create((set, get) => ({
       if (error) throw error;
 
       set({ isLoading: false });
-
       window.location.href = "/verify-email";
     } catch (error) {
       set({ error, isLoading: false });
@@ -175,6 +151,7 @@ const useAuthStore = create((set, get) => ({
     }
   },
 
+  // Google sign in
   google: async () => {
     set({ isLoading: true, error: null });
 
@@ -209,7 +186,7 @@ const useAuthStore = create((set, get) => ({
   isAuthenticated: () => get().user !== null,
 }));
 
-// Create a custom hook that combines Zustand with React Query
+// Create a custom hook that combines Zustand with auth state
 export function useAuth() {
   const {
     user,
@@ -222,107 +199,26 @@ export function useAuth() {
     initialize,
     google,
   } = useAuthStore();
-  const queryClient = useQueryClient();
-
-  // Use React Query to fetch and cache the profile
-  const { data: profile, isLoading: profileLoading } = useQuery({
-    queryKey: ["profile", user?.id],
-    queryFn: async () => {
-      if (!user) return null;
-
-      try {
-        // Try to fetch the profile
-        const { data, error } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", user.id)
-          .single();
-
-        // If profile exists, return it
-        if (data) return data;
-
-        // If no profile exists (and it's not another error), create one
-        if (error && error.code === "PGRST116") {
-          // Get username from user metadata or email
-          const username =
-            user.user_metadata?.username || user.email?.split("@")[0];
-
-          // Create a new profile
-          const { data: newProfile, error: createError } = await supabase
-            .from("profiles")
-            .insert([
-              {
-                id: user.id,
-                username: username,
-                display_name: username,
-              },
-            ])
-            .select()
-            .single();
-
-          if (createError) throw createError;
-          return newProfile;
-        }
-
-        // If it's another error, throw it
-        if (error) throw error;
-      } catch (error) {
-        console.error("Profile fetch/create error:", error);
-        throw error;
-      }
-    },
-    enabled: !!user,
-    ...sessionQueryConfig(),
-  });
 
   // Initialize auth on component mount
   useEffect(() => {
     const unsubscribe = initialize();
 
-    // Set up listener for auth state changes to invalidate queries
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      // Only invalidate if the user ID actually changed
-      const currentUserId = user?.id;
-      const newUserId = session?.user?.id;
-
-      if (event === "SIGNED_IN" && currentUserId !== newUserId) {
-        queryClient.invalidateQueries({
-          queryKey: ["profile", newUserId],
-          exact: true, // Only invalidate exact query key match
-        });
-      }
-      if (event === "SIGNED_OUT") {
-        queryClient.removeQueries({
-          queryKey: ["profile"],
-          exact: false, // Remove all profile queries
-        });
-      }
-    });
-
     return () => {
       if (typeof unsubscribe === "function") {
         unsubscribe();
       }
-      subscription?.unsubscribe();
     };
-  }, [queryClient, initialize, user?.id]); // Add user.id to dependencies
+  }, [initialize]);
 
   return {
     user,
-    profile,
-    isLoading: isLoading || profileLoading,
+    isLoading,
     error,
     signIn,
     signUp,
     signOut,
     google,
     isAuthenticated: isAuthenticated(),
-    refreshProfile: () =>
-      queryClient.invalidateQueries({
-        queryKey: ["profile", user?.id],
-        exact: true, // Only invalidate exact query key match
-      }),
   };
 }

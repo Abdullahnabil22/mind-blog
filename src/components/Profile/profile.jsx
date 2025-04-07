@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { useAuth } from "../../stores/useAuthStore";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
@@ -8,9 +7,12 @@ import { Avatar } from "../reusable/avatar";
 import { ProfileInfo } from "./profileInfo";
 import { MainFooter } from "../Home/Footer";
 import { useTheme } from "../../hooks/useTheme";
+import { useProfile } from "../../stores/useProfileStore";
+import { useAuth } from "../../stores/useAuthStore";
 
 export function Profile() {
-  const { profile } = useAuth();
+  const {  user } = useAuth();
+  const { profile } = useProfile(user);
   const { isDark } = useTheme();
 
   const [profileData, setProfileData] = useState({

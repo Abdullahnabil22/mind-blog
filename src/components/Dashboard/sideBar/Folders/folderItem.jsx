@@ -103,7 +103,7 @@ export const FolderItem = ({
           {folder.name}
         </span>
 
-        <div className="ml-auto flex space-x-1 md:opacity-0 md:group-hover:opacity-100">
+        <div className="ml-auto flex space-x-1 ">
           <Button
             variant="ghost"
             size="icon"
