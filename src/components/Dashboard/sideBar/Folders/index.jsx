@@ -32,7 +32,7 @@ function Folders() {
   const folderTree =
     foldersLoading || notesLoading ? [] : buildFolderTree(folders, notes);
 
-  // Recursive component to render folders and their children
+
 
   return (
     <>

@@ -9,7 +9,7 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router";
 import { OptionsMenu } from "../../../reusable/optionsMenu";
 
-// Component to render a single note
+
 export const NoteItem = ({ note, level = 0 }) => {
   const { isDark } = useTheme();
   const paddingLeft = `${level * 2 + 6}px`;
@@ -74,7 +74,7 @@ export const NoteItem = ({ note, level = 0 }) => {
       >
         {note.title}
       </span>
-      <div className="ml-auto md:group-hover:opacity-100 md:opacity-0 opacity-100">
+      <div className="ml-auto">
         <Button
           variant="ghost"
           size="icon"

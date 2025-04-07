@@ -8,8 +8,10 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { PiUserCircleFill } from "react-icons/pi";
 import { useTheme } from "../../hooks/useTheme";
+import { useProfile } from "../../stores/useProfileStore";
 export function ProfileInfo({ profileData, setProfileData }) {
-  const { profile, refreshProfile, user } = useAuth();
+  const {  user } = useAuth();
+  const {profile, refreshProfile} = useProfile(user)
   const { isDark } = useTheme();
   const [isEditing, setIsEditing] = useState(false);
   const handleChange = (e) => {

@@ -26,6 +26,7 @@ import {
   NotesHeader,
 } from "../../../components/Dashboard/sideBar/Notes";
 import { Link } from "react-router";
+import { useProfile } from "../../../stores/useProfileStore";
 
 const items = [
   {
@@ -43,7 +44,8 @@ const items = [
 export function AppSidebar({ ...props }) {
   const { state } = useSidebar();
   const { isDark, toggleTheme } = useTheme();
-  const { profile } = useAuth();
+  const { user } = useAuth();
+  const {profile} = useProfile(user)
 
   return (
     <Sidebar
@@ -81,7 +83,7 @@ export function AppSidebar({ ...props }) {
         } flex-grow overflow-y-auto`}
       >
         {/* Workspace/Files Section */}
-        <SidebarGroup>
+       {state === "expanded" ? <SidebarGroup>
           <SidebarGroupLabel
             className={`flex items-center justify-between ${
               isDark ? "text-amber-100" : "text-gray-700"
@@ -99,7 +101,7 @@ export function AppSidebar({ ...props }) {
               <Notes parentFolderId={null} />
             </div>
           </SidebarGroupContent>
-        </SidebarGroup>
+        </SidebarGroup> : null}
       </SidebarContent>
       <SidebarFooter
         className={isDark ? "bg-[#000e07] text-amber-100" : "bg-[#f5f4f4]"}

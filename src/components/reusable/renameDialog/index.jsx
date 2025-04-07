@@ -27,16 +27,16 @@ export const RenameDialog = ({
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent
-        className={isDark ? "bg-[#00170C] text-amber-100 border-gray-800" : ""}
+        className={isDark ? "bg-[#00170C] text-amber-100 border-gray-800" : "text-black"}
       >
         <DialogHeader>
-          <DialogTitle className={isDark ? "text-amber-100" : ""}>
+          <DialogTitle className={isDark ? "text-amber-100" : "text-black"}>
             {title}
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-2">
           <div className="space-y-2">
-            <Label htmlFor={inputId} className={isDark ? "text-amber-100" : ""}>
+            <Label htmlFor={inputId} className={isDark ? "text-amber-100" : "text-black"}>
               {labelText}
             </Label>
             <Input
@@ -44,7 +44,7 @@ export const RenameDialog = ({
               value={value}
               onChange={onChange}
               className={
-                isDark ? "bg-[#000e07] text-amber-100 border-gray-700" : ""
+                isDark ? "bg-[#000e07] text-amber-100 border-gray-700" : "text-black"
               }
               autoFocus
             />
@@ -57,7 +57,7 @@ export const RenameDialog = ({
             className={`${
               isDark
                 ? "text-amber-100 border-gray-700 hover:bg-amber-100 bg-[#00170C]"
-                : ""
+                : "text-black"
             } cursor-pointer`}
           >
             {cancelButtonText}

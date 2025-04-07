@@ -8,10 +8,12 @@ import { SignOut } from "../signOutButton";
 import { useAuth } from "../../../stores/useAuthStore";
 import { Link, NavLink } from "react-router";
 import { useTheme } from "../../../hooks/useTheme";
+import { useProfile } from "../../../stores/useProfileStore";
 
 export function NavBar() {
   const { isDark } = useTheme();
-  const { profile, isAuthenticated, user } = useAuth();
+  const {  isAuthenticated, user } = useAuth();
+  const {profile} = useProfile(user)
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleMenu = () => setIsOpen(!isOpen);

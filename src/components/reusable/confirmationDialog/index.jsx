@@ -22,15 +22,15 @@ export const ConfirmationDialog = ({
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent
-        className={isDark ? "bg-[#00170C] text-amber-100 border-gray-800" : ""}
+        className={isDark ? "bg-[#00170C] text-amber-100 border-gray-800" : "text-black"}
       >
         <DialogHeader>
-          <DialogTitle className={isDark ? "text-amber-100" : ""}>
+          <DialogTitle className={isDark ? "text-amber-100" : "text-black"}>
             {title}
           </DialogTitle>
         </DialogHeader>
         <div className="py-4">
-          <p className={isDark ? "text-amber-100" : ""}>{description}</p>
+          <p className={isDark ? "text-amber-100" : "text-black"}>{description}</p>
         </div>
         <DialogFooter>
           <Button
@@ -39,7 +39,7 @@ export const ConfirmationDialog = ({
             className={`${
               isDark
                 ? "text-amber-100 border-gray-700 hover:bg-amber-100 bg-[#00170C]"
-                : ""
+                : "text-black"
             } cursor-pointer`}
           >
             {cancelText}

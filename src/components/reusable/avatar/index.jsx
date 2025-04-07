@@ -4,10 +4,12 @@ import { useAuth } from "../../../stores/useAuthStore";
 import { Loader2, Camera, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useTheme } from "../../../hooks/useTheme";
+import { useProfile } from "../../../stores/useProfileStore";
 
 export function Avatar({ setProfileData, profileData }) {
   const { isDark } = useTheme();
-  const { profile, refreshProfile } = useAuth();
+  const {user } = useAuth();
+  const { profile, refreshProfile} = useProfile(user)
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   const handleAvatarUpload = async (e) => {
