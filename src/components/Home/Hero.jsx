@@ -39,7 +39,7 @@ export function Hero() {
           <section className="flex flex-col sm:flex-row justify-center gap-4 mb-16">
             <motion.a
               href="/workspace"
-              className={`px-8 py-4 cursor-pointer text-lg font-medium rounded-md flex items-center justify-center gap-2 transition-all ${
+              className={`px-10 py-4 cursor-pointer text-lg font-medium rounded-lg flex items-center justify-center gap-2 transition-all ${
                 !isDark
                   ? "bg-green-500 hover:bg-green-600 text-white"
                   : "bg-green-500 hover:bg-green-600 text-[#00170C]"
@@ -50,18 +50,6 @@ export function Hero() {
               <FaRocket className="text-xl" />
               Get Started
             </motion.a>
-
-            <motion.button
-              className={`px-8 py-4 text-lg cursor-pointer font-medium rounded-md border-2 flex items-center justify-center gap-2 transition-all ${
-                !isDark
-                  ? "border-green-500 text-black hover:bg-green-50"
-                  : "border-amber-100 text-amber-100 hover:bg-[#00170C]/50"
-              }`}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Learn More
-            </motion.button>
           </section>
 
           <footer className="flex justify-center space-x-6 mb-12">
