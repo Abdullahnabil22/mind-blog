@@ -10,25 +10,16 @@ export function useProfile(user) {
     queryKey: ["profile", user?.id],
     queryFn: async () => {
       if (!user) return null;
-
       try {
-        // Try to fetch the profile
         const { data, error } = await supabase
           .from("profiles")
           .select("*")
           .eq("id", user.id)
           .single();
-
-        // If profile exists, return it
         if (data) return data;
-
-        // If no profile exists (and it's not another error), create one
         if (error && error.code === "PGRST116") {
-          // Get username from user metadata or email
           const username =
             user.user_metadata?.username || user.email?.split("@")[0];
-
-          // Create a new profile
           const { data: newProfile, error: createError } = await supabase
             .from("profiles")
             .insert([
@@ -44,8 +35,6 @@ export function useProfile(user) {
           if (createError) throw createError;
           return newProfile;
         }
-
-        // If it's another error, throw it
         if (error) throw error;
       } catch (error) {
         console.error("Profile fetch/create error:", error);
@@ -55,13 +44,10 @@ export function useProfile(user) {
     enabled: !!user,
     ...sessionQueryConfig(),
   });
-
-  // Set up React Query cache invalidation on auth state changes
   useEffect(() => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
-      // Only invalidate if the user ID actually changed
       const currentUserId = user?.id;
       const newUserId = session?.user?.id;
 
